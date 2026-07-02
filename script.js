@@ -1,5 +1,6 @@
 import { SIZE, currentPuzzle } from "./state.js";
 import { loadPuzzle } from "./puzzleLoader.js";
+import { renderClues } from "./render.js";
 
 
 console.log("script loaded")
@@ -291,7 +292,7 @@ async function init() {
         answer: currentPuzzle.down[word.number]?.answer || ""
     }));
 
-    renderClues();
+    renderClues(acrossWords, downWords, activeWord, setActiveWord);
 
 }
 
@@ -343,7 +344,7 @@ startGameButton.addEventListener("click", () => {
     gameScreen.classList.remove("hidden");
 
     renderGrid();
-    renderClues();
+    renderClues(acrossWords, downWords, activeWord, setActiveWord);
 });
 
 // Check Button Listener
@@ -621,56 +622,6 @@ function buildDownWords() {
     return words;
 }
 
-// Render Clues
-function renderClues() {
-    const acrossContainer = document.getElementById("across-list");
-    const downContainer = document.getElementById("down-list");
-
-    const sortedAcross = [...acrossWords].sort((a, b) => a.number - b.number);
-    const sortedDown = [...downWords].sort((a, b) => a.number - b.number);
-
-    acrossContainer.innerHTML = "";
-    downContainer.innerHTML = "";
-
-    sortedAcross.forEach(word => {
-        const div = document.createElement("div");
-        div.textContent = `${word.number}. ${word.clue}`;
-
-        if (
-            activeWord &&
-            activeWord.number === word.number &&
-            activeWord.direction === "across"
-        ) {
-            div.classList.add("active-clue")
-        }
-
-        div.addEventListener("click", () => {
-            setActiveWord(word, true)
-        });
-
-        acrossContainer.appendChild(div)
-    });
-
-    sortedDown.forEach(word => {
-        const div = document.createElement("div");
-        div.textContent = `${word.number}. ${word.clue}`;
-
-        if (
-            activeWord &&
-            activeWord.number === word.number &&
-            activeWord.direction === "down"
-        ) {
-            div.classList.add("active-clue")
-        }
-
-        div.addEventListener("click", () => {
-            setActiveWord(word, true)
-        });
-
-        downContainer.appendChild(div);
-    });
-}
-
 // Set Active Word
 function setActiveWord(word, fromClue = false) {
     activeWord = word;
@@ -694,7 +645,7 @@ function setActiveWord(word, fromClue = false) {
         direction = word.direction;
     }
 
-    renderClues();
+    renderClues(acrossWords, downWords, activeWord, setActiveWord);
     renderGrid();
 }
 
