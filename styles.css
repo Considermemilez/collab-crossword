@@ -130,3 +130,17 @@ body {
 #reveal-menu button {
     white-space: nowrap;
 }
+
+#welcome-screen {
+    margin-bottom: 20px;
+}
+
+#welcome-screen input {
+    margin: 6px 0 12px;
+    display: block;
+}
+
+#game-screen.hidden,
+#welcome-screen.hidden {
+    display: none !important;
+}

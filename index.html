@@ -9,36 +9,67 @@
 <body>
 
     <h1>Crossword</h1>
-    <div id="game-controls">
-        <button id="check-btn">Check Answers</button>
 
-        <div id="reveal-menu-wrapper">
-            <button id="reveal-btn">Reveal</button>
+    <div id="welcome-screen">
+        <h2>Start a Crossword</h2>
 
-            <div id="reveal-menu" class="hidden">
-                <button id="reveal-letter-btn">Letter</button>
-                <button id="reveal-word-btn">Word</button>
-                <button id="reveal-puzzle-btn">Puzzle</button>
+        <label for="player-one-name">Your first name:</label>
+        <input id="player-one-name" type="text" placeholder="Gregg" />
+
+        <div>
+            <label>
+                <input type="radio" name="play-mode" value="solo" checked />
+                Solo
+            </label>
+
+            <label>
+                <input type="radio" name="play-mode" value="pair" />
+                Pair
+            </label>
+        </div>
+
+        <div id="player-two-section" class="hidden">
+            <label for="player-two-name">Partners first name:</label>
+            <input id="player-two-name" type="text" placeholder="Omi" />
+        </div>
+
+        <button id="start-game-btn">Start Game</button>
+    </div>
+    <div id="game-screen" class="hidden">
+
+    
+        <div id="game-controls">
+            <button id="check-btn">Check Answers</button>
+
+            <div id="reveal-menu-wrapper">
+                <button id="reveal-btn">Reveal</button>
+
+                <div id="reveal-menu" class="hidden">
+                    <button id="reveal-letter-btn">Letter</button>
+                    <button id="reveal-word-btn">Word</button>
+                    <button id="reveal-puzzle-btn">Puzzle</button>
+                </div>
             </div>
         </div>
-    </div>
-    
+        
 
-    <div id="grid"></div>
+        <div id="grid"></div>
 
-    <div id="clues">
-        <div id="across-clues">
-            <h3>Across</h3>
-            <div id="across-list"></div>
+        <div id="clues">
+            <div id="across-clues">
+                <h3>Across</h3>
+                <div id="across-list"></div>
+            </div>
+
+            <div id="down-clues">
+                <h3>Down</h3>
+                <div id="down-list"></div>
+            </div>
+
         </div>
-
-        <div id="down-clues">
-            <h3>Down</h3>
-            <div id="down-list"></div>
-        </div>
-
     </div>
-    
+
     <script src="script.js"></script>
+    
 </body>
 </html>

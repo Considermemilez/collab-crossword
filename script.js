@@ -5,8 +5,14 @@ const DEV_MODE = true;
 
 let currentPuzzle = null; 
 
-
-
+let currentSession = {
+    players: [],
+    mode: "solo",
+    puzzleId: null,
+    startTime: null,
+    endTime: null,
+    completed: false
+};
 
 // STATE
 const grid = Array(SIZE).fill().map(() =>
@@ -77,6 +83,7 @@ let downWords = [];
 let selectedCell = { row: 0, col: 0 };
 let direction = "across";
 let activeWord = null;
+let gameActive = false;
 
 // DOM Container
 const gridContainer = document.getElementById("grid");
@@ -86,6 +93,14 @@ const revealMenu = document.getElementById("reveal-menu");
 const revealLetterButton = document.getElementById("reveal-letter-btn");
 const revealWordButton = document.getElementById("reveal-word-btn");
 const revealPuzzleButton = document.getElementById("reveal-puzzle-btn");
+
+const welcomeScreen = document.getElementById("welcome-screen");
+const gameScreen = document.getElementById("game-screen");
+const startGameButton = document.getElementById("start-game-btn");
+const playerOneInput = document.getElementById("player-one-name");
+const playerTwoInput = document.getElementById("player-two-name");
+const playerTwoSection = document.getElementById("player-two-section");
+const modeInputs = document.querySelectorAll("input[name='play-mode']");
 
 // Move selection
 function moveSelection(row, col) {
@@ -254,12 +269,15 @@ function renderGrid() {
 async function loadPuzzle(puzzleId) {
     const response = await fetch(`puzzles/${puzzleId}.json`);
     currentPuzzle = await response.json();
+    currentSession.puzzleId = puzzleId;
 }
 
 
 // INIT function
 async function init() {
-    await loadPuzzle("easy001")
+    await loadPuzzle("easy001");
+    currentSession.startTime = Date.now();
+
 
     acrossWords = buildAcrossWords();
     downWords = buildDownWords();
@@ -284,6 +302,55 @@ async function init() {
 
 init();
 
+// Show/Hide partner input
+modeInputs.forEach(input => {
+    input.addEventListener("change", () => {
+        const selectedMode = document.querySelector("input[name='play-mode']:checked").value;
+
+        if (selectedMode === "pair") {
+            playerTwoSection.classList.remove("hidden");
+        } else {
+            playerTwoSection.classList.add("hidden")
+        }
+    });
+});
+
+// Start game Button
+startGameButton.addEventListener("click", () => {
+    const playerOneName = playerOneInput.value.trim();
+    const selectedMode = document.querySelector("input[name='play-mode']:checked").value;
+
+    if (!playerOneName) {
+        alert("Please enter your first name.");
+        return;
+    }
+
+    currentSession.players = [playerOneName];
+    currentSession.mode = selectedMode;
+    currentSession.startTime = Date.now();
+    currentSession.completed = false;
+    currentSession.endTime = null;
+
+    if (selectedMode === 'pair') {
+        const playerTwoName = playerTwoInput.value.trim();
+
+        if (!playerTwoName) {
+            alert("Please enter your partners first name.");
+            return;
+        }
+
+        currentSession.players.push(playerTwoName);
+    }
+
+    gameActive = true;
+
+    welcomeScreen.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
+
+    renderGrid();
+    renderClues();
+});
+
 // Check Button Listener
 checkButton.addEventListener("click", () => {
     acrossWords.forEach(word => validateWord(word));
@@ -292,6 +359,12 @@ checkButton.addEventListener("click", () => {
     renderGrid();
 
     if (isPuzzleComplete()) {
+        currentSession.completed = true;
+        currentSession.endTime = Date.now();
+
+        gameActive = false;
+
+        // Victory screen
         alert("🎉 Congratulations! You solved the puzzle!")
     }
 });
@@ -326,6 +399,10 @@ revealPuzzleButton.addEventListener("click", () => {
 
 // Keyboard listener
 document.addEventListener("keydown", (event) => {
+
+    if (!gameActive) return;
+    
+
     const { row, col } = selectedCell;
     const cell = grid[row][col];
 
