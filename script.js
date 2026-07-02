@@ -1,6 +1,8 @@
 import { SIZE, currentPuzzle } from "./state.js";
 import { loadPuzzle } from "./puzzleLoader.js";
 import { renderClues } from "./render.js";
+import { handleDevShortcut } from "./devtools.js";
+
 
 
 console.log("script loaded")
@@ -403,59 +405,9 @@ document.addEventListener("keydown", (event) => {
     const cell = grid[row][col];
 
     // ====== Developer Shortcuts ======
-    if (DEV_MODE) {
-        // 1 - Lock all white cells
-        if (event.key === "1") {
-            for (let r = 0; r < SIZE; r++) {
-                for (let c = 0; c < SIZE; c++) {
-                    if (!grid[r][c].isBlack) {
-                        grid[r][c].isLocked = true;
-                    }
-                }
-            }
+    const devHandled = handleDevShortcut(event, grid, SIZE, renderGrid, revealPuzzle);
 
-            renderGrid();
-            console.log("Developer: Locked every cell.");
-            return;
-        }
-
-        // 2 - Unlock every white cell
-        if (event.key === "2") {
-            for (let r = 0; r < SIZE; r++) {
-                for (let c = 0; c < SIZE; c++) {
-                    if (!grid[r][c].isBlack) {
-                        grid[r][c].isLocked = false;
-                    }
-                }
-            }
-
-            renderGrid();
-            console.log("Developer: Unlocked every cell.");
-            return;
-        }
-
-        // 3 - Reveal Puzzle
-        if (event.key === "3") {
-            revealPuzzle();
-            console.log("Developer: Puzzle revealed.");
-            return;
-        }
-
-        // prevent typing into black squares
-        if (cell.isBlack) return;
-        if (cell.isLocked) return;
-
-        // Arrow Right
-        if (event.key === "ArrowRight") {
-            direction = "across";
-
-            if (col < SIZE - 1 && !grid[row][col + 1].isBlack) {
-                moveSelection(row, col + 1);
-            }
-
-            return;
-        }
-    }
+    if (devHandled) return;
 
     // Arrow Left
     if (event.key === "ArrowLeft") {
