@@ -1,9 +1,11 @@
+import { SIZE, currentPuzzle } from "./state.js";
+import { loadPuzzle } from "./puzzleLoader.js";
+
+
 console.log("script loaded")
 
-const SIZE = 15;
-const DEV_MODE = true;
 
-let currentPuzzle = null; 
+const DEV_MODE = true;
 
 let currentSession = {
     players: [],
@@ -263,13 +265,6 @@ function renderGrid() {
             gridContainer.appendChild(cell);
             }
     }
-}
-
-// Load Puzzle
-async function loadPuzzle(puzzleId) {
-    const response = await fetch(`puzzles/${puzzleId}.json`);
-    currentPuzzle = await response.json();
-    currentSession.puzzleId = puzzleId;
 }
 
 
