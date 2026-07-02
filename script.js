@@ -250,10 +250,16 @@ function renderGrid() {
     }
 }
 
+// Load Puzzle
+async function loadPuzzle(puzzleId) {
+    const response = await fetch(`puzzles/${puzzleId}.json`);
+    currentPuzzle = await response.json();
+}
+
+
 // INIT function
 async function init() {
-    const response = await fetch("puzzles/easy001.json");
-    currentPuzzle = await response.json();
+    await loadPuzzle("easy001")
 
     acrossWords = buildAcrossWords();
     downWords = buildDownWords();
