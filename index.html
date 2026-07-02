@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="'en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collaborative Crossword</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+    <h1>Crossword</h1>
+    <div id="game-controls">
+        <button id="check-btn">Check Answers</button>
+
+        <div id="reveal-menu-wrapper">
+            <button id="reveal-btn">Reveal</button>
+
+            <div id="reveal-menu" class="hidden">
+                <button id="reveal-letter-btn">Letter</button>
+                <button id="reveal-word-btn">Word</button>
+                <button id="reveal-puzzle-btn">Puzzle</button>
+            </div>
+        </div>
+    </div>
+    
+
+    <div id="grid"></div>
+
+    <div id="clues">
+        <div id="across-clues">
+            <h3>Across</h3>
+            <div id="across-list"></div>
+        </div>
+
+        <div id="down-clues">
+            <h3>Down</h3>
+            <div id="down-list"></div>
+        </div>
+
+    </div>
+    
+
+    <script src="script.js"></script>
+</body>
+</html>
