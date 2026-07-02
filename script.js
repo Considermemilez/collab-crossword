@@ -3,6 +3,8 @@ console.log("script loaded")
 const SIZE = 15;
 const DEV_MODE = true;
 
+let currentPuzzle = null; 
+
 
 
 
@@ -249,7 +251,10 @@ function renderGrid() {
 }
 
 // INIT function
-function init() {
+async function init() {
+    const response = await fetch("puzzles/easy001.json");
+    currentPuzzle = await response.json();
+
     acrossWords = buildAcrossWords();
     downWords = buildDownWords();
 
@@ -257,14 +262,14 @@ function init() {
 
     acrossWords = acrossWords.map(word => ({
         ...word,
-        clue: puzzleData.across[word.number]?.clue || "",
-        answer: puzzleData.across[word.number]?.answer || ""
+        clue: currentPuzzle.across[word.number]?.clue || "",
+        answer: currentPuzzle.across[word.number]?.answer || ""
     }));
 
     downWords = downWords.map(word => ({
         ...word,
-        clue: puzzleData.down[word.number]?.clue || "",
-        answer: puzzleData.down[word.number]?.answer || ""
+        clue: currentPuzzle.down[word.number]?.clue || "",
+        answer: currentPuzzle.down[word.number]?.answer || ""
     }));
 
     renderClues();
@@ -316,6 +321,7 @@ revealPuzzleButton.addEventListener("click", () => {
 // Keyboard listener
 document.addEventListener("keydown", (event) => {
     const { row, col } = selectedCell;
+    const cell = grid[row][col];
 
     // ====== Developer Shortcuts ======
     if (DEV_MODE) {
@@ -356,12 +362,9 @@ document.addEventListener("keydown", (event) => {
             return;
         }
 
-        const cell = grid[row][col];
-
-        if (cell.isLocked) return;
-
         // prevent typing into black squares
         if (cell.isBlack) return;
+        if (cell.isLocked) return;
 
         // Arrow Right
         if (event.key === "ArrowRight") {
