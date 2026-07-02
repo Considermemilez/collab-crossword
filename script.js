@@ -1,23 +1,17 @@
-import { SIZE, currentPuzzle } from "./state.js";
+import { 
+    SIZE, 
+    currentPuzzle,
+    currentSession,
+    gameActive,
+    setGameActive 
+} from "./state.js";
+
 import { loadPuzzle } from "./puzzleLoader.js";
 import { renderClues } from "./render.js";
 import { handleDevShortcut } from "./devtools.js";
-
-
+import { setupWelcomeScreen } from "./session.js"; 
 
 console.log("script loaded")
-
-
-const DEV_MODE = true;
-
-let currentSession = {
-    players: [],
-    mode: "solo",
-    puzzleId: null,
-    startTime: null,
-    endTime: null,
-    completed: false
-};
 
 // STATE
 const grid = Array(SIZE).fill().map(() =>
@@ -88,7 +82,6 @@ let downWords = [];
 let selectedCell = { row: 0, col: 0 };
 let direction = "across";
 let activeWord = null;
-let gameActive = false;
 
 // DOM Container
 const gridContainer = document.getElementById("grid");
@@ -270,6 +263,16 @@ function renderGrid() {
     }
 }
 
+// Start Game
+function startGame() {
+    renderGrid();
+    renderClues(
+        acrossWords,
+        downWords,
+        activeWord,
+        setActiveWord
+    );
+}
 
 // INIT function
 async function init() {
@@ -300,53 +303,16 @@ async function init() {
 
 init();
 
-// Show/Hide partner input
-modeInputs.forEach(input => {
-    input.addEventListener("change", () => {
-        const selectedMode = document.querySelector("input[name='play-mode']:checked").value;
-
-        if (selectedMode === "pair") {
-            playerTwoSection.classList.remove("hidden");
-        } else {
-            playerTwoSection.classList.add("hidden")
-        }
-    });
-});
-
-// Start game Button
-startGameButton.addEventListener("click", () => {
-    const playerOneName = playerOneInput.value.trim();
-    const selectedMode = document.querySelector("input[name='play-mode']:checked").value;
-
-    if (!playerOneName) {
-        alert("Please enter your first name.");
-        return;
-    }
-
-    currentSession.players = [playerOneName];
-    currentSession.mode = selectedMode;
-    currentSession.startTime = Date.now();
-    currentSession.completed = false;
-    currentSession.endTime = null;
-
-    if (selectedMode === 'pair') {
-        const playerTwoName = playerTwoInput.value.trim();
-
-        if (!playerTwoName) {
-            alert("Please enter your partners first name.");
-            return;
-        }
-
-        currentSession.players.push(playerTwoName);
-    }
-
-    gameActive = true;
-
-    welcomeScreen.classList.add("hidden");
-    gameScreen.classList.remove("hidden");
-
-    renderGrid();
-    renderClues(acrossWords, downWords, activeWord, setActiveWord);
+// Setup welcome Screen
+setupWelcomeScreen({
+    welcomeScreen,
+    gameScreen,
+    startGameButton,
+    playerOneInput,
+    playerTwoInput,
+    playerTwoSection,
+    modeInputs,
+    startGame
 });
 
 // Check Button Listener
@@ -360,7 +326,7 @@ checkButton.addEventListener("click", () => {
         currentSession.completed = true;
         currentSession.endTime = Date.now();
 
-        gameActive = false;
+        setGameActive(false);
 
         // Victory screen
         alert("🎉 Congratulations! You solved the puzzle!")
@@ -408,6 +374,21 @@ document.addEventListener("keydown", (event) => {
     const devHandled = handleDevShortcut(event, grid, SIZE, renderGrid, revealPuzzle);
 
     if (devHandled) return;
+
+    // prevent typing into black squares
+    if (cell.isBlack) return;
+    if (cell.isLocked) return;
+
+    // Arrow Right
+    if (event.key === "ArrowRight") {
+        direction = "across";
+
+        if (col < SIZE - 1 && !grid[row][col + 1].isBlack) {
+            moveSelection(row, col + 1);
+        }
+
+        return;
+    };
 
     // Arrow Left
     if (event.key === "ArrowLeft") {
@@ -632,7 +613,7 @@ function getCorrectLetterForCell(row, col) {
 
 // Reveal Cell
 function revealCell(row, col) {
-    const cell =grid[row][col];
+    const cell = grid[row][col];
 
     if (cell.isBlack) return;
 

@@ -1,4 +1,4 @@
-const DEV_MODE = true;
+const DEV_MODE = true; // set to false before production
 
 export function handleDevShortcut(event, grid, SIZE, renderGrid, revealPuzzle) {
     // ====== Developer Shortcuts ======
@@ -42,19 +42,5 @@ export function handleDevShortcut(event, grid, SIZE, renderGrid, revealPuzzle) {
             console.log("Developer: Puzzle revealed.");
             return;
         }
-
-        // prevent typing into black squares
-        if (cell.isBlack) return;
-        if (cell.isLocked) return;
-
-        // Arrow Right
-        if (event.key === "ArrowRight") {
-            direction = "across";
-
-            if (col < SIZE - 1 && !grid[row][col + 1].isBlack) {
-                moveSelection(row, col + 1);
-            }
-
-            return;
-        }
 }
+

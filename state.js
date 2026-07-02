@@ -16,3 +16,7 @@ export let currentSession = {
 }
 
 export let gameActive = false;
+
+export function setGameActive(value) {
+    gameActive = value;
+}
