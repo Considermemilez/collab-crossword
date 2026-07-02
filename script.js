@@ -3,20 +3,7 @@ console.log("script loaded")
 const SIZE = 15;
 const DEV_MODE = true;
 
-// Puzzle Data
 
-const puzzle = {
-  across: {
-    1: { answer: "CAT", clue: "Common household pet" },
-    5: { answer: "DOG", clue: "Man's best friend" },
-    7: { answer: "SUN", clue: "Star at the center of our solar system" }
-  },
-
-  down: {
-    1: { answer: "CAR", clue: "Road vehicle with four wheels" },
-    2: { answer: "TIN", clue: "Metal container material" }
-  }
-};
 
 
 // STATE
@@ -270,14 +257,14 @@ function init() {
 
     acrossWords = acrossWords.map(word => ({
         ...word,
-        clue: puzzle.across[word.number]?.clue || "",
-        answer: puzzle.across[word.number]?.answer || ""
+        clue: puzzleData.across[word.number]?.clue || "",
+        answer: puzzleData.across[word.number]?.answer || ""
     }));
 
     downWords = downWords.map(word => ({
         ...word,
-        clue: puzzle.down[word.number]?.clue || "",
-        answer: puzzle.down[word.number]?.answer || ""
+        clue: puzzleData.down[word.number]?.clue || "",
+        answer: puzzleData.down[word.number]?.answer || ""
     }));
 
     renderClues();
