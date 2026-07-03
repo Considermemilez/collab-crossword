@@ -412,7 +412,12 @@ setupKeyboardInput({
     renderGrid,
     handleDevShortcut,
     revealPuzzle: () =>
-        revealPuzzle(grid, acrossWords, downWords, renderGrid),
+        revealPuzzle(
+            grid, 
+            getAcrossWords(), 
+            getDownWords(), 
+            renderGrid
+        ),
     getSelectedCell,
     setSelectedCell,
     getDirection,
