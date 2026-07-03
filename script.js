@@ -15,7 +15,9 @@ import {
     validateWord, 
     isPuzzleComplete,
     getCorrectLetterForCell, 
-    revealCell 
+    revealCell,
+    revealWord,
+    revealPuzzle 
 } from "./gameplay.js";
 
 
@@ -382,14 +384,20 @@ revealLetterButton.addEventListener("click", () => {
 
 // reveal Word Listener
 revealWordButton.addEventListener("click", () => {
-    revealWord(activeWord);
+    revealWord(
+        grid,
+        activeWord,
+        acrossWords,
+        downWords,
+        renderGrid
+    );
 
     revealMenu.classList.add("hidden");
 });
 
 // Reveal Puzzle Listener
 revealPuzzleButton.addEventListener("click", () => {
-    revealPuzzle();
+    revealPuzzle(grid, acrossWords, downWords, renderGrid);
 
     revealMenu.classList.add("hidden");
 });
@@ -403,7 +411,8 @@ setupKeyboardInput({
     moveSelection,
     renderGrid,
     handleDevShortcut,
-    revealPuzzle,
+    revealPuzzle: () =>
+        revealPuzzle(grid, acrossWords, downWords, renderGrid),
     getSelectedCell,
     setSelectedCell,
     getDirection,
@@ -540,29 +549,9 @@ function findWordAtCell(row, col, words) {
     );
 }
 
-// Reveal Word
-function revealWord(word) {
-    if (!word) return;
 
-    word.cells.forEach(cell => {
-        revealCell(grid, cell.row, cell.col, acrossWords, downWords, renderGrid);
-    });
 
-    renderGrid();
-}
 
-// Reveal Puzzle
-function revealPuzzle() {
-    acrossWords.forEach(word => {
-        revealWord(word);
-    });
-
-    downWords.forEach(word => {
-        revealWord(word);
-    });
-
-    renderGrid();
-}
 
 
 

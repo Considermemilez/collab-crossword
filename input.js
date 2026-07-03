@@ -50,7 +50,13 @@ export function setupKeyboardInput({
         const cell = grid[row][col];
     
         // ====== Developer Shortcuts ======
-        const devHandled = handleDevShortcut(event, grid, SIZE, renderGrid, revealPuzzle);
+        const devHandled = handleDevShortcut(
+            event, 
+            grid, 
+            SIZE, 
+            renderGrid, 
+            () => revealPuzzle(grid, getAcrossWords(), getDownWords(), renderGrid )
+        );
         if (devHandled) return;
     
         // prevent typing into black squares
