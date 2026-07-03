@@ -6,6 +6,12 @@ import {
     setGameActive 
 } from "./state.js";
 
+import {
+    isWordStart,
+    buildAcrossWords,
+    buildDownWords
+} from "./puzzleModel.js"
+
 import { loadPuzzle } from "./puzzleLoader.js";
 import { renderClues } from "./render.js";
 import { handleDevShortcut } from "./devtools.js";
@@ -103,7 +109,7 @@ let clueNumber = 1;
 
 for (let row = 0; row < SIZE; row++) {
     for (let col = 0; col < SIZE; col++) {
-        if (isWordStart(row, col)) {
+        if (isWordStart(grid, row, col)) {
             grid[row][col].number = clueNumber;
             clueNumber++;
         }
@@ -316,8 +322,8 @@ async function init() {
     currentSession.startTime = Date.now();
 
 
-    acrossWords = buildAcrossWords();
-    downWords = buildDownWords();
+    acrossWords = buildAcrossWords(grid, SIZE);
+    downWords = buildDownWords(grid, SIZE);
 
     renderGrid();
 
@@ -436,89 +442,6 @@ function isInActiveWord(row, col) {
     return activeWord.cells.some(
         cell => cell.row === row && cell.col === col
     );
-}
-
-// Find word starts
-function isWordStart(row, col) {
-    if (grid[row][col].isBlack) return false;
-
-    const startsAcross = 
-        col === 0 || grid[row][col - 1].isBlack;
-
-    const startsDown =
-        row === 0 || grid[row - 1][col].isBlack;
-
-    return startsAcross || startsDown;
-}
-
-// Build Across Words
-function buildAcrossWords() {
-    const words = [];
-
-    for (let row = 0; row < SIZE; row++) {
-        let col = 0;
-
-        while (col < SIZE) {
-            if (grid[row][col].isBlack) {
-                col++;
-                continue;
-            }
-
-            const cells = [];
-
-            while (col < SIZE && !grid[row][col].isBlack) {
-                cells.push({ row, col });
-                col++;
-            }
-
-            if (cells.length >= 3) {
-                const start = cells[0];
-
-                words.push({
-                    number: grid[start.row][start.col].number,
-                    direction: "across",
-                    cells
-                });
-            }
-        }
-    }
-
-    return words;
-}
-
-// Build Down Words
-function buildDownWords() {
-    const words = [];
-
-    for (let col = 0; col < SIZE; col++) {
-        let row = 0;
-
-        while (row < SIZE) {
-            if (grid[row][col].isBlack) {
-                row++;
-                continue;
-            }
-
-            const cells = [];
-
-            while (row < SIZE && !grid[row][col].isBlack) {
-                cells.push({ row, col });
-                row++;
-            }
-
-            if (cells.length >= 3) {
-                const start = cells[0];
-
-                words.push({
-                    number: grid[start.row][start.col].number,
-                    direction: "down",
-                    cells
-                });
-            }
-        }
-    }
-
-    return words;
 }
 
 // Set Active Word
