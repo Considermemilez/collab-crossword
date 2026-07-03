@@ -21,3 +21,64 @@ export function validateWord(grid, word) {
         }
     });
 }
+
+// Puzzle Completion
+export function isPuzzleComplete(grid, SIZE) {
+
+
+    
+    for (let row = 0; row < SIZE; row++) {
+        for (let col = 0; col < SIZE; col++) {
+
+            const cell = grid[row][col];
+
+            if (cell.isBlack) continue;
+
+            if (!cell.isLocked) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+// Get correct letter
+export function getCorrectLetterForCell(row, col, acrossWords, downWords) {
+    const matchingWords = [
+        ...acrossWords,
+        ...downWords
+    ].filter(word =>
+        word.cells.some(c => c.row === row && c.col === col)
+    );
+
+    for (const word of matchingWords) {
+        const index = word.cells.findIndex(c =>
+            c.row === row && c.col === col
+        );
+
+        if (word.answer && word.answer[index]) {
+            return word.answer[index];
+        }
+    }
+
+    return "";
+}
+
+// Reveal Cell
+export function revealCell(grid, row, col, acrossWords, downWords, renderGrid) {
+    const cell = grid[row][col];
+
+    if (cell.isBlack) return;
+
+    const correctLetter = getCorrectLetterForCell(row, col, acrossWords, downWords);
+
+    if (!correctLetter) return;
+
+    cell.letter = correctLetter;
+    cell.isCorrect = true;
+    cell.isWrong = false;
+    cell.isLocked = true;
+
+    renderGrid();
+}

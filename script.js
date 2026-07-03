@@ -11,7 +11,12 @@ import { renderClues } from "./render.js";
 import { handleDevShortcut } from "./devtools.js";
 import { setupWelcomeScreen } from "./session.js"; 
 import { setupKeyboardInput } from "./input.js";
-import { validateWord } from "./gameplay.js";
+import { 
+    validateWord, 
+    isPuzzleComplete,
+    getCorrectLetterForCell, 
+    revealCell 
+} from "./gameplay.js";
 
 
 console.log("script loaded")
@@ -343,14 +348,14 @@ setupWelcomeScreen({
     startGame
 });
 
-// Check Button Listener
+// Check Answers Button Listener
 checkButton.addEventListener("click", () => {
     acrossWords.forEach(word => validateWord(grid, word));
     downWords.forEach(word => validateWord(grid, word));
 
     renderGrid();
 
-    if (isPuzzleComplete()) {
+    if (isPuzzleComplete(grid, SIZE)) {
         currentSession.completed = true;
         currentSession.endTime = Date.now();
 
@@ -370,7 +375,7 @@ revealButton.addEventListener("click", () => {
 revealLetterButton.addEventListener("click", () => {
     const { row, col } = selectedCell;
 
-    revealCell(row, col);
+    revealCell(grid, row, col, acrossWords, downWords, renderGrid);
 
     revealMenu.classList.add("hidden");
 });
@@ -535,52 +540,12 @@ function findWordAtCell(row, col, words) {
     );
 }
 
-// Get correct letter
-function getCorrectLetterForCell(row, col) {
-    const matchingWords = [
-        ...acrossWords,
-        ...downWords
-    ].filter(word =>
-        word.cells.some(c => c.row === row && c.col === col)
-    );
-
-    for (const word of matchingWords) {
-        const index = word.cells.findIndex(c =>
-            c.row === row && c.col === col
-        );
-
-        if (word.answer && word.answer[index]) {
-            return word.answer[index];
-        }
-    }
-
-    return "";
-}
-
-// Reveal Cell
-function revealCell(row, col) {
-    const cell = grid[row][col];
-
-    if (cell.isBlack) return;
-
-    const correctLetter = getCorrectLetterForCell(row, col);
-
-    if (!correctLetter) return;
-
-    cell.letter = correctLetter;
-    cell.isCorrect = true;
-    cell.isWrong = false;
-    cell.isLocked = true;
-
-    renderGrid();
-}
-
 // Reveal Word
 function revealWord(word) {
     if (!word) return;
 
     word.cells.forEach(cell => {
-        revealCell(cell.row, cell.col);
+        revealCell(grid, cell.row, cell.col, acrossWords, downWords, renderGrid);
     });
 
     renderGrid();
@@ -599,23 +564,7 @@ function revealPuzzle() {
     renderGrid();
 }
 
-// Puzzle Completion
-function isPuzzleComplete() {
-    for (let row = 0; row < SIZE; row++) {
-        for (let col = 0; col < SIZE; col++) {
 
-            const cell = grid[row][col];
-
-            if (cell.isBlack) continue;
-
-            if (!cell.isLocked) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
 
 
 
