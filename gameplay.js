@@ -106,3 +106,11 @@ export function revealPuzzle(grid, acrossWords, downWords, renderGrid) {
 
     renderGrid();
 }
+
+// Find Word at Cell
+export function findWordAtCell(row, col, words) {
+    return words.find(word =>
+        word.cells.some(c => c.row === row && c.col === col)
+    );
+}
+

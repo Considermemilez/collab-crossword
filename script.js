@@ -17,7 +17,8 @@ import {
     getCorrectLetterForCell, 
     revealCell,
     revealWord,
-    revealPuzzle 
+    revealPuzzle, 
+    findWordAtCell 
 } from "./gameplay.js";
 
 
@@ -547,12 +548,6 @@ function setActiveWord(word, fromClue = false) {
     renderGrid();
 }
 
-// Find Word at Cell
-function findWordAtCell(row, col, words) {
-    return words.find(word =>
-        word.cells.some(c => c.row === row && c.col === col)
-    );
-}
 
 
 
