@@ -11,6 +11,7 @@ import { renderClues } from "./render.js";
 import { handleDevShortcut } from "./devtools.js";
 import { setupWelcomeScreen } from "./session.js"; 
 import { setupKeyboardInput } from "./input.js";
+import { validateWord } from "./gameplay.js";
 
 
 console.log("script loaded")
@@ -344,8 +345,8 @@ setupWelcomeScreen({
 
 // Check Button Listener
 checkButton.addEventListener("click", () => {
-    acrossWords.forEach(word => validateWord(word));
-    downWords.forEach(word => validateWord(word));
+    acrossWords.forEach(word => validateWord(grid, word));
+    downWords.forEach(word => validateWord(grid, word));
 
     renderGrid();
 
@@ -616,28 +617,5 @@ function isPuzzleComplete() {
     return true;
 }
 
-// Validate Word
-function validateWord(word) {
-    if (!word.answer) return;
-
-    word.cells.forEach((cell, index) => {
-        const typedLetter = grid[cell.row][cell.col].letter;
-        const correctLetter = word.answer[index];
-
-        if (typedLetter === correctLetter) {
-            grid[cell.row][cell.col].isCorrect = true;
-            grid[cell.row][cell.col].isWrong = false;
-            grid[cell.row][cell.col].isLocked = true;
-        } else if (typedLetter !== "") {
-            grid[cell.row][cell.col].isCorrect = false;
-            grid[cell.row][cell.col].isWrong = true;
-            grid[cell.row][cell.col].isLocked = false;
-        } else {
-            grid[cell.row][cell.col].isCorrect = false;
-            grid[cell.row][cell.col].isWrong = false;
-            grid[cell.row][cell.col].isLocked = false;
-        }
-    });
-}
 
 
