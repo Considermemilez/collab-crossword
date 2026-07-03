@@ -10,6 +10,8 @@ import { loadPuzzle } from "./puzzleLoader.js";
 import { renderClues } from "./render.js";
 import { handleDevShortcut } from "./devtools.js";
 import { setupWelcomeScreen } from "./session.js"; 
+import { setupKeyboardInput } from "./input.js";
+
 
 console.log("script loaded")
 
@@ -24,6 +26,31 @@ const grid = Array(SIZE).fill().map(() =>
         isLocked: false
     }))
 );
+
+// Getter/setters
+function getSelectedCell() {
+    return selectedCell;
+}
+
+function setSelectedCell(cell) {
+    selectedCell = cell;
+}
+
+function getDirection() {
+    return direction;
+}
+
+function setDirection(newDirection) {
+    direction = newDirection;
+}
+
+function getAcrossWords() {
+    return acrossWords;
+}
+
+function getDownWords() {
+    return downWords;
+}
 
 // TEST Black Squares
 const blackSquares = [
@@ -361,106 +388,24 @@ revealPuzzleButton.addEventListener("click", () => {
     revealMenu.classList.add("hidden");
 });
 
-// Keyboard listener
-document.addEventListener("keydown", (event) => {
-
-    if (!gameActive) return;
-    
-
-    const { row, col } = selectedCell;
-    const cell = grid[row][col];
-
-    // ====== Developer Shortcuts ======
-    const devHandled = handleDevShortcut(event, grid, SIZE, renderGrid, revealPuzzle);
-
-    if (devHandled) return;
-
-    // prevent typing into black squares
-    if (cell.isBlack) return;
-    if (cell.isLocked) return;
-
-    // Arrow Right
-    if (event.key === "ArrowRight") {
-        direction = "across";
-
-        if (col < SIZE - 1 && !grid[row][col + 1].isBlack) {
-            moveSelection(row, col + 1);
-        }
-
-        return;
-    };
-
-    // Arrow Left
-    if (event.key === "ArrowLeft") {
-        direction = "across";
-
-        if (col > 0 && !grid[row][col - 1].isBlack) {
-            moveSelection(row, col - 1);
-        }
-
-        return;
-    }
-
-    // Arrow Down
-    if (event.key === "ArrowDown") {
-        direction = "down";
-
-        if (row < SIZE - 1 && !grid[row + 1][col].isBlack) {
-            moveSelection(row + 1, col );
-        }
-
-        return;
-    }
-    // Arrow Up
-    if (event.key === "ArrowUp") {
-        direction = "down";
-
-        if (row > 0 && !grid[row - 1][col].isBlack) {
-            moveSelection(row - 1, col);
-        }
-
-        return;
-    }
-
-    // handle letters A-Z
-    if (event.key.length === 1 && event.key.match(/[a-z]/i)) {
-        cell.letter = event.key.toUpperCase();
-
-        const next = getNextCell(row, col);
-
-        if (next) {
-            selectedCell = next;
-        }
-
-        renderGrid();
-        return;
-    }
-
-    // backspace
-    if (event.key === "Backspace") {
-        if (cell.letter === "") {
-            // move back if empty
-            const previous = getPreviousCell(row, col);
-
-            if (previous) {
-                const previousCell = grid[previous.row][previous.col];
-
-                selectedCell = previous;
-
-                if (!previousCell.isLocked) {
-                    previousCell.letter = "";
-                    previousCell.isWrong = false;
-                    previousCell.isCorrect = false;
-                }
-            }
-        } else {
-            cell.letter = "";
-            cell.isWrong = false;
-            cell.isCorrect = false;
-        }
-
-        renderGrid();
-    }
+// Setup Keyboard input
+setupKeyboardInput({
+    grid,
+    SIZE,
+    getNextCell,
+    getPreviousCell,
+    moveSelection,
+    renderGrid,
+    handleDevShortcut,
+    revealPuzzle,
+    getSelectedCell,
+    setSelectedCell,
+    getDirection,
+    setDirection, 
+    findWordAtCell,
+    getAcrossWords,
+    getDownWords,
+    setActiveWord
 });
 
 // Active word detection
