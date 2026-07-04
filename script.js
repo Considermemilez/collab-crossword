@@ -84,7 +84,7 @@ let selectedCell = { row: 0, col: 0 };
 let direction = "across";
 let activeWord = null;
 let timerInterval = null;
-let selectedPuzzleId = "easy001"
+let selectedPuzzleId = "";
 
 // DOM Container
 const gridContainer = document.getElementById("grid");
@@ -273,6 +273,8 @@ function renderGrid() {
 
 // Start Game
 async function startGame() {
+    selectedPuzzleId = puzzleSelect.value;
+
     await loadSelectedPuzzle();
 
     updateTimer();
@@ -506,6 +508,8 @@ async function loadSelectedPuzzle() {
 
 
 function populatePuzzleSelector() {
+    puzzleSelect.innerHTML = "";
+
     puzzleCatalog.forEach(puzzle => {
         const option = document.createElement("option");
 
