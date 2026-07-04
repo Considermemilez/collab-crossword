@@ -101,10 +101,11 @@ const playerTwoInput = document.getElementById("player-two-name");
 const playerTwoSection = document.getElementById("player-two-section");
 const modeInputs = document.querySelectorAll("input[name='play-mode']");
 
-const completionModal = document.getElementById('completion-modal');
-const completionTime = document.getElementById('completion-time');
-const completionEligibility = document.getElementById('completion-eligibility');
-const completionCloseButton = document.getElementById('completion-close-btn');
+const completionModal = document.getElementById("completion-modal");
+const completionTime = document.getElementById("completion-time");
+const completionEligibility = document.getElementById("completion-eligibility");
+const completionCloseButton = document.getElementById("completion-close-btn");
+const completionLeaderboard = document.getElementById("completion-leaderboard")
 
 
 // Move selection
@@ -314,7 +315,7 @@ function stopTimer () {
 }
 
 // Get Completion results
-function getCompletionResults() {
+function getCompletionResult() {
     const solveTimeMs = 
         currentSession.endTime - currentSession.startTime;
 
@@ -327,21 +328,60 @@ function getCompletionResults() {
         solveTime:
             `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`,
 
-        leaderboardeligible: !currentSession.usedReveal
+        leaderboardEligible: !currentSession.usedReveal,
+
+        puzzleId: currentSession.puzzleId,
+
+        mode: currentSession.mode
     };
 }
 
+// Get Mock Leaderboard
+function getMockLeaderboard(puzzleId, mode) {
+    const mockLeaderboards = {
+        easy001: {
+            solo: [
+                {player: "Gregg", time: "1:38" },
+                {player: "Omi", time: "2:38" },
+                {player: "Brian", time: "5:56" },
+            ],
+            pair: [
+                {player: "Gregg and Omi", time: "1:38" },
+                {player: "Gregg and Omi", time: "5:42" },
+                {player: "Gregg and Omi", time: "18:11" },
+            ]
+        }
+    };
+
+    return mockLeaderboards[puzzleId]?.[mode] || [];
+}
+
+// Render Leaderboard
+function renderLeaderboard(leaderboard = []) {
+    completionLeaderboard.innerHTML = "";
+
+    leaderboard.forEach(entry => {
+        const row = document.createElement("div");
+
+        row.textContent = `${entry.player} - ${entry.time}`;
+
+        completionLeaderboard.appendChild(row);
+    });
+}
+
 // Show Completion Modal
-function showCompletionmodal(completionResult) {
+function showCompletionModal(completionResult) {
     completionTime.textContent = completionResult.solveTime;
 
-    if (completionResult.leaderboardeligible) {
+    if (completionResult.leaderboardEligible) {
         completionEligibility.textContent = 
             "Leaderboard eligible: Yes";
     } else {
         completionEligibility.textContent = 
             "Leaderboard eligible: No - Reveal was used :(";
     }
+
+    renderLeaderboard(completionResult.leaderboard);
 
     completionModal.classList.remove("hidden");
 }
@@ -353,9 +393,14 @@ function finishPuzzle() {
 
     setGameActive(false);
 
-    const completionResult = getCompletionResults();
+    const completionResult = getCompletionResult();
 
-    showCompletionmodal(completionResult)
+    completionResult.leaderboard = getMockLeaderboard(
+        completionResult.puzzleId,
+        completionResult.mode
+    );
+
+    showCompletionModal(completionResult);
 }
 
 // Build Puzzle
