@@ -49,3 +49,72 @@ export function renderClues(acrossWords, downWords, activeWord, setActiveWord) {
         downContainer.appendChild(div);
     });
 }
+
+// Create Cell Element
+export function createCellElement() {
+    const cell = document.createElement("div");
+    cell.classList.add("cell");
+
+    return cell;
+}
+
+// Render Cell Number
+export function renderCellNumber(cellElement, cellData) {
+    if (!cellData.number) return;
+
+    const number = document.createElement("span");
+    number.classList.add("cell-number");
+    number.textContent = cellData.number;
+
+    cellElement.appendChild(number);
+}
+
+// Render Cell Letter
+export function renderCellLetter(cellElement, cellData) {
+    const letter = document.createElement("span");
+    letter.textContent = cellData.letter;
+
+    cellElement.appendChild(letter);
+}
+
+// Apply Cell Classes
+export function applyCellClasses(
+    cellElement,
+    cellData,
+    row,
+    col,
+    selectedCell,
+    isActive
+) {
+
+    if (cellData.isBlack) {
+        cellElement.classList.add("black");
+    } else {
+        cellElement.classList.add("white");
+    }
+
+    if (cellData.isCorrect) {
+        cellElement.classList.add("correct");
+    }
+
+    if (cellData.isLocked) {
+        cellElement.classList.add("locked");
+    }
+
+    if (cellData.isWrong) {
+        cellElement.classList.add("wrong");
+    }
+
+    if (isActive) {
+        cellElement.classList.add("active-word");
+    }
+
+    if (
+        selectedCell.row === row &&
+        selectedCell.col === col
+    ) {
+        cellElement.classList.add("selected");
+    }
+}
+
+

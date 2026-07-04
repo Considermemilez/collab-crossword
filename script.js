@@ -13,7 +13,14 @@ import {
 } from "./puzzleModel.js"
 
 import { loadPuzzle } from "./puzzleLoader.js";
-import { renderClues } from "./render.js";
+import {
+    renderClues,
+    createCellElement,
+    renderCellNumber,
+    renderCellLetter, 
+    applyCellClasses
+ } from "./render.js";
+
 import { handleDevShortcut } from "./devtools.js";
 import { setupWelcomeScreen } from "./session.js"; 
 import { setupKeyboardInput } from "./input.js";
@@ -65,55 +72,6 @@ function getAcrossWords() {
 
 function getDownWords() {
     return downWords;
-}
-
-// TEST Black Squares
-const blackSquares = [
-  [0, 4], [0, 5], [0, 9], [0, 10],
-
-  [1, 3], [1, 11],
-
-  [2, 6],
-
-  [3, 1], [3, 7], [3, 13],
-
-  [4, 5], [4, 9],
-
-  [5, 2], [5, 12],
-
-  [6, 0], [6, 6], [6, 8], [6, 14],
-
-  [7, 4], [7, 10],
-
-  [8, 2], [8, 12],
-
-  [9, 5], [9, 9],
-
-  [10, 1], [10, 13],
-
-  [11, 3], [11, 11],
-
-  [12, 6],
-
-  [13, 4], [13, 5], [13, 9], [13, 10],
-
-  [14, 5], [14, 9]
-];
-
-for (const [row, col] of blackSquares) {
-  grid[row][col].isBlack = true;
-}
-
-// Add Clue Numbers
-let clueNumber = 1;
-
-for (let row = 0; row < SIZE; row++) {
-    for (let col = 0; col < SIZE; col++) {
-        if (isWordStart(grid, row, col)) {
-            grid[row][col].number = clueNumber;
-            clueNumber++;
-        }
-    }
 }
 
 // Words
@@ -205,6 +163,82 @@ function getPreviousCell(row, col) {
     return null;
 }
 
+
+// click behavior
+function attachCellClickHandler(cellElement, row, col) {
+    cellElement.addEventListener("click", () => {
+        if (grid[row][col].isBlack) return; 
+
+        const isSameCell = 
+            selectedCell.row === row &&
+            selectedCell.col === col;
+
+        // determine which word cell belongs to
+        const acrossMatch = findWordAtCell(row, col, acrossWords);
+        const downMatch = findWordAtCell(row, col, downWords);
+
+
+        if (isSameCell) {
+            if (direction === "across" && downMatch) {
+                direction = "down";
+            } else if (direction === "down" && acrossMatch) {
+                direction = "across";
+            } 
+        }
+
+        selectedCell = { row, col };
+
+        // decide direction priority
+        let targetWord = null;
+
+        // prefer current direction IF available
+        if (direction === "across" && acrossMatch) {
+            targetWord = acrossMatch;
+        } else if (direction === "down" && downMatch) {
+            targetWord = downMatch;
+        } 
+
+        // fallback logic
+        if (!targetWord) {
+            targetWord = acrossMatch || downMatch;
+        }
+
+        if (targetWord) {
+            setActiveWord(targetWord, false);
+        } else {
+            renderGrid();
+        }
+    });
+}
+
+// Render Cells 
+function renderCell(
+    row, 
+    col, 
+    cellData,
+    selectedCell,
+    isActive
+) {
+    const cell = createCellElement();
+
+    applyCellClasses(
+        cell,
+        cellData,
+        row,
+        col,
+        selectedCell,
+        isActive
+    );
+
+    renderCellNumber(cell, cellData);
+
+    renderCellLetter(cell, cellData);
+
+    attachCellClickHandler(cell, row, col);
+
+    return cell;
+}
+
 // Render Grid Function
 function renderGrid() {
     gridContainer.innerHTML = "";
@@ -213,92 +247,13 @@ function renderGrid() {
         for (let col = 0; col < SIZE; col++) {
 
             const cellData = grid[row][col];
-
-            const cell = document.createElement("div");
-            cell.classList.add("cell");
-
-            // Style Black v. white
-            if (cellData.isBlack) {
-                cell.classList.add("black");
-            } else {
-                cell.classList.add("white");
-            }
-
-            if (cellData.isCorrect) {
-                cell.classList.add("correct")
-            }
-
-            if (cellData.isLocked) {
-                cell.classList.add("locked")
-            }
-
-            if (cellData.isWrong) {
-                cell.classList.add("wrong")
-            }
-
-            // Render Clue Numbers
-            if (cellData.number) {
-                const number = document.createElement("span");
-                number.classList.add("cell-number");
-                number.textContent = cellData.number;
-                cell.appendChild(number);
-            }
-
-            // Active word highlight
-            
-            if (isInActiveWord(row, col)) {
-                cell.classList.add("active-word")
-            }
-            
-
-            // Fill cell with letter
-            const letter = document.createElement("span");
-            letter.textContent = cellData.letter;
-            cell.appendChild(letter);
-
-            // Highlight selected Cell
-            if (selectedCell.row === row && selectedCell.col === col) {
-                cell.classList.add("selected");
-            }
-
-            // click behavior
-            cell.addEventListener("click", () => {
-                if (grid[row][col].isBlack) return; 
-
-                const isSameCell = 
-                    selectedCell.row === row &&
-                    selectedCell.col === col;
-
-                if (isSameCell) {
-                    direction = (direction === "across") ? "down" : "across";
-                }
-
-                selectedCell = { row, col };
-
-                // determine which word cell belongs to
-                const acrossMatch = findWordAtCell(row, col, acrossWords);
-                const downMatch = findWordAtCell(row, col, downWords);
-
-                // decide direction priority
-                let targetWord = null;
-
-                // prefer current direction IF available
-                if (direction === "across" && acrossMatch) {
-                    targetWord = acrossMatch;
-                } else if (direction === "down" && downMatch) {
-                    targetWord = downMatch;
-                } 
-
-                // fallback logic
-                if (!targetWord) {
-                    targetWord = acrossMatch || downMatch;
-                }
-                if (targetWord) {
-                    setActiveWord(targetWord, false);
-                } else {
-                    renderGrid();
-                }
-            });
+            const cell = renderCell(
+                row, 
+                col, 
+                cellData,
+                selectedCell,
+                isInActiveWord(row, col)
+            );
 
             gridContainer.appendChild(cell);
             }
@@ -316,17 +271,30 @@ function startGame() {
     );
 }
 
-// INIT function
-async function init() {
-    await loadPuzzle("easy001");
-    currentSession.startTime = Date.now();
+// Build Puzzle
+function initializePuzzle() {
+    // Load Black Squares
+    for (const [row, col] of currentPuzzle.blackSquares) {
+        grid[row][col].isBlack = true;
+    }  
 
+    // Add Clue Numbers
+    let clueNumber = 1;
 
+    for (let row = 0; row < SIZE; row++) {
+        for (let col = 0; col < SIZE; col++) {
+            if (isWordStart(grid, row, col)) {
+                grid[row][col].number = clueNumber;
+                clueNumber++;
+            }
+        }   
+    }
+
+    // Build words
     acrossWords = buildAcrossWords(grid, SIZE);
     downWords = buildDownWords(grid, SIZE);
 
-    renderGrid();
-
+    // Attach Clues
     acrossWords = acrossWords.map(word => ({
         ...word,
         clue: currentPuzzle.across[word.number]?.clue || "",
@@ -338,6 +306,18 @@ async function init() {
         clue: currentPuzzle.down[word.number]?.clue || "",
         answer: currentPuzzle.down[word.number]?.answer || ""
     }));
+}
+
+// INIT function
+async function init() {
+    await loadPuzzle("easy001");
+    currentSession.startTime = Date.now(); 
+
+    // Build Puzzle
+    initializePuzzle();
+
+    // Render Grid/Clues
+    renderGrid();
 
     renderClues(acrossWords, downWords, activeWord, setActiveWord);
 
@@ -452,6 +432,7 @@ function setActiveWord(word, fromClue = false) {
     if (word && word.cells.length > 0) {
         if (fromClue) {
             selectedCell = word.cells[0];
+            direction = word.direction;
         } else {
             // ensure cursor is always inside word
             const match = word.cells.find(c =>
@@ -460,11 +441,11 @@ function setActiveWord(word, fromClue = false) {
             );
 
             if (!match) {
-                selectedCell = word.cells[0]
+                selectedCell = word.cells[0];
             }
         }
-
         direction = word.direction;
+        
     }
 
     renderClues(acrossWords, downWords, activeWord, setActiveWord);
