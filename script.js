@@ -24,6 +24,7 @@ import {
 import { handleDevShortcut } from "./devtools.js";
 import { setupWelcomeScreen } from "./session.js"; 
 import { setupKeyboardInput } from "./input.js";
+import { puzzleCatalog } from "./puzzleCatalog.js";
 import { 
     validateWord, 
     isPuzzleComplete,
@@ -83,6 +84,7 @@ let selectedCell = { row: 0, col: 0 };
 let direction = "across";
 let activeWord = null;
 let timerInterval = null;
+let selectedPuzzleId = "easy001"
 
 // DOM Container
 const gridContainer = document.getElementById("grid");
@@ -100,6 +102,7 @@ const playerOneInput = document.getElementById("player-one-name");
 const playerTwoInput = document.getElementById("player-two-name");
 const playerTwoSection = document.getElementById("player-two-section");
 const modeInputs = document.querySelectorAll("input[name='play-mode']");
+const puzzleSelect = document.getElementById("puzzle-select")
 
 const completionModal = document.getElementById("completion-modal");
 const completionTime = document.getElementById("completion-time");
@@ -269,14 +272,8 @@ function renderGrid() {
 }
 
 // Start Game
-function startGame() {
-    renderGrid();
-    renderClues(
-        acrossWords,
-        downWords,
-        activeWord,
-        setActiveWord
-    );
+async function startGame() {
+    await loadSelectedPuzzle();
 
     updateTimer();
 
@@ -360,6 +357,11 @@ function getMockLeaderboard(puzzleId, mode) {
 function renderLeaderboard(leaderboard = []) {
     completionLeaderboard.innerHTML = "";
 
+    if (leaderboard.length === 0) {
+        completionLeaderboard.textContent = "No leaderboard times yet."
+        return;
+    }
+
     leaderboard.forEach(entry => {
         const row = document.createElement("div");
 
@@ -401,6 +403,32 @@ function finishPuzzle() {
     );
 
     showCompletionModal(completionResult);
+}
+
+// Reset Game State
+function resetGameState() {
+    activeWord = null;
+
+    selectedCell = { row: 0, col: 0};
+
+    direction = "across";
+
+    acrossWords = [];
+
+    downWords = [];
+
+    for (let row = 0; row < SIZE; row++) {
+        for (let col = 0; col < SIZE; col++) {
+            grid[row][col] = {
+                isBlack: false,
+                letter: "",
+                number: null,
+                isCorrect: false,
+                isWrong: false,
+                isLocked: false
+            };
+        }
+    }
 }
 
 // Build Puzzle
@@ -446,11 +474,13 @@ function attachPuzzleData() {
     }));
 }
 
-// INIT function
-async function init() {
+// Load Puzzle function
+async function loadSelectedPuzzle() {
     try {
-        await loadPuzzle("easy001");
-        currentSession.startTime = Date.now(); 
+
+        resetGameState();
+
+        await loadPuzzle(selectedPuzzleId);
 
         // Build Puzzle
         initializePuzzle();
@@ -473,7 +503,23 @@ async function init() {
 
 }
 
-init();
+
+
+function populatePuzzleSelector() {
+    puzzleCatalog.forEach(puzzle => {
+        const option = document.createElement("option");
+
+        option.value = puzzle.id;
+        option.textContent =
+            `${puzzle.name} (${puzzle.difficulty})`;
+
+        puzzleSelect.appendChild(option);
+    });
+
+    selectedPuzzleId = puzzleCatalog[0].id;
+}
+
+populatePuzzleSelector();
 
 // Setup welcome Screen
 setupWelcomeScreen({
