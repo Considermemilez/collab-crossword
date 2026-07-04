@@ -82,6 +82,7 @@ let downWords = [];
 let selectedCell = { row: 0, col: 0 };
 let direction = "across";
 let activeWord = null;
+let timerInterval = null;
 
 // DOM Container
 const gridContainer = document.getElementById("grid");
@@ -269,6 +270,29 @@ function startGame() {
         activeWord,
         setActiveWord
     );
+
+    updateTimer();
+
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+// Update Game Timer
+function updateTimer() {
+    const timerElement = document.getElementById("timer");
+
+    const elapsedSeconds = Math.floor(
+        (Date.now() - currentSession.startTime) / 1000
+    );
+
+    const minutes = Math.floor(elapsedSeconds / 60);
+    const seconds = elapsedSeconds % 60;
+
+    timerElement.textContent = 
+    `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 // Build Puzzle
@@ -294,32 +318,50 @@ function initializePuzzle() {
     acrossWords = buildAcrossWords(grid, SIZE);
     downWords = buildDownWords(grid, SIZE);
 
+    
+}
+
+// Attach Puzzle Data
+function attachPuzzleData() {
+
     // Attach Clues
     acrossWords = acrossWords.map(word => ({
         ...word,
-        clue: currentPuzzle.across[word.number]?.clue || "",
+        clue: currentPuzzle.across[word.number]?.clue || "[Missing Clue]",
         answer: currentPuzzle.across[word.number]?.answer || ""
     }));
 
     downWords = downWords.map(word => ({
         ...word,
-        clue: currentPuzzle.down[word.number]?.clue || "",
+        clue: currentPuzzle.down[word.number]?.clue || "[Missing Clue]",
         answer: currentPuzzle.down[word.number]?.answer || ""
     }));
 }
 
 // INIT function
 async function init() {
-    await loadPuzzle("easy001");
-    currentSession.startTime = Date.now(); 
+    try {
+        await loadPuzzle("easy001");
+        currentSession.startTime = Date.now(); 
 
-    // Build Puzzle
-    initializePuzzle();
+        // Build Puzzle
+        initializePuzzle();
+        attachPuzzleData();
 
-    // Render Grid/Clues
-    renderGrid();
+        // Render Grid/Clues
+        renderGrid();
 
-    renderClues(acrossWords, downWords, activeWord, setActiveWord);
+        renderClues(
+            acrossWords, 
+            downWords, 
+            activeWord, 
+            setActiveWord
+        );
+    } catch (error) {
+        console.error(error);
+
+        alert("Failed to load the crossword puzzle");
+    }
 
 }
 
