@@ -109,6 +109,7 @@ const completionTime = document.getElementById("completion-time");
 const completionEligibility = document.getElementById("completion-eligibility");
 const completionCloseButton = document.getElementById("completion-close-btn");
 const completionLeaderboard = document.getElementById("completion-leaderboard")
+const completionNewGameButton = document.getElementById("completion-new-game-btn")
 
 
 // Move selection
@@ -290,8 +291,10 @@ async function startGame() {
 function updateTimer() {
     const timerElement = document.getElementById("timer");
 
+    const endTime = currentSession.endTime || Date.now();
+
     const elapsedSeconds = Math.floor(
-        (Date.now() - currentSession.startTime) / 1000
+        (endTime - currentSession.startTime) / 1000
     );
 
     const minutes = Math.floor(elapsedSeconds / 60);
@@ -303,8 +306,10 @@ function updateTimer() {
 
 // Stop Timer 
 function stopTimer () {
-    currentSession.endTime = Date.now();
-
+    if (!currentSession.endTime) {
+        currentSession.endTime = Date.now();
+    }
+    
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
@@ -390,6 +395,7 @@ function showCompletionModal(completionResult) {
     completionModal.classList.remove("hidden");
 }
 
+// Finish Puzzle
 function finishPuzzle() {
     currentSession.completed = true;
 
@@ -430,6 +436,24 @@ function resetGameState() {
                 isLocked: false
             };
         }
+    }
+}
+
+// Return to Welcome Screen
+function returnToWelcomeScreen () {
+    completionModal.classList.add("hidden")
+
+    gameScreen.classList.add("hidden");
+    welcomeScreen.classList.remove("hidden");
+
+    playerOneInput.value = "";
+    playerTwoInput.value = "";
+
+    setGameActive(false);
+
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
     }
 }
 
@@ -506,7 +530,7 @@ async function loadSelectedPuzzle() {
 }
 
 
-
+// Populate Puzzle Selector
 function populatePuzzleSelector() {
     puzzleSelect.innerHTML = "";
 
@@ -519,6 +543,11 @@ function populatePuzzleSelector() {
 
         puzzleSelect.appendChild(option);
     });
+
+    if (puzzleCatalog.length > 0) {
+        selectedPuzzleId = puzzleCatalog[0].id;
+        puzzleSelect.value = selectedPuzzleId;
+    }
 
     selectedPuzzleId = puzzleCatalog[0].id;
 }
@@ -587,15 +616,21 @@ revealPuzzleButton.addEventListener("click", () => {
     currentSession.usedReveal = true;
 
     revealPuzzle(grid, acrossWords, downWords, renderGrid);
-    stopTimer();
 
     revealMenu.classList.add("hidden");
+
+    finishPuzzle();
 });
 
 // Completion Modal Close Listener
 completionCloseButton.addEventListener("click", () => {
     completionModal.classList.add("hidden");
 });
+
+// Completion Modal New Game Listener
+completionNewGameButton.addEventListener("click", () => {
+    returnToWelcomeScreen();
+})
 
 // Setup Keyboard input
 setupKeyboardInput({
