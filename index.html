@@ -40,7 +40,7 @@
     
         <div id="game-controls">
             <div id="timer">00:00</div>
-            
+
             <button id="check-btn">Check Answers</button>
 
             <div id="reveal-menu-wrapper">
@@ -68,6 +68,23 @@
                 <div id="down-list"></div>
             </div>
 
+        </div>
+    </div>
+
+    <div id="completion-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🎉 Puzzle Complete!</h2>
+
+            <p>
+                <strong>Time:</strong>
+                <span id="completion-time"></span>
+            </p>
+
+            <p id="completion-eligibility"></p>
+
+            <button id="completion-close-btn">
+                Close
+            </button>
         </div>
     </div>
 

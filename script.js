@@ -101,6 +101,12 @@ const playerTwoInput = document.getElementById("player-two-name");
 const playerTwoSection = document.getElementById("player-two-section");
 const modeInputs = document.querySelectorAll("input[name='play-mode']");
 
+const completionModal = document.getElementById('completion-modal');
+const completionTime = document.getElementById('completion-time');
+const completionEligibility = document.getElementById('completion-eligibility');
+const completionCloseButton = document.getElementById('completion-close-btn');
+
+
 // Move selection
 function moveSelection(row, col) {
     selectedCell = { row, col };
@@ -307,6 +313,39 @@ function stopTimer () {
     updateTimer();
 }
 
+// Get Completion results
+function getCompletionResults() {
+    const solveTimeMs = 
+        currentSession.endTime - currentSession.startTime;
+
+    const elapsedSeconds = Math.floor(solveTimeMs / 1000);
+
+    const minutes = Math.floor(elapsedSeconds / 60);
+    const seconds = elapsedSeconds % 60;
+
+    return {
+        solveTime:
+            `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`,
+
+        leaderboardeligible: !currentSession.usedReveal
+    };
+}
+
+// Show Completion Modal
+function showCompletionmodal(completionResult) {
+    completionTime.textContent = completionResult.solveTime;
+
+    if (completionResult.leaderboardeligible) {
+        completionEligibility.textContent = 
+            "Leaderboard eligible: Yes";
+    } else {
+        completionEligibility.textContent = 
+            "Leaderboard eligible: No - Reveal was used :(";
+    }
+
+    completionModal.classList.remove("hidden");
+}
+
 // Build Puzzle
 function initializePuzzle() {
     // Load Black Squares
@@ -405,8 +444,9 @@ checkButton.addEventListener("click", () => {
 
         setGameActive(false);
 
-        // Victory screen
-        alert("🎉 Congratulations! You solved the puzzle!")
+        const completionResult = getCompletionResults();
+        
+        showCompletionmodal(completionResult);
     }
 });
 
@@ -450,6 +490,11 @@ revealPuzzleButton.addEventListener("click", () => {
     stopTimer();
 
     revealMenu.classList.add("hidden");
+});
+
+// Completion Modal Close Listener
+completionCloseButton.addEventListener("click", () => {
+    completionModal.classList.add("hidden");
 });
 
 // Setup Keyboard input
