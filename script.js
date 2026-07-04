@@ -346,6 +346,18 @@ function showCompletionmodal(completionResult) {
     completionModal.classList.remove("hidden");
 }
 
+function finishPuzzle() {
+    currentSession.completed = true;
+
+    stopTimer();
+
+    setGameActive(false);
+
+    const completionResult = getCompletionResults();
+
+    showCompletionmodal(completionResult)
+}
+
 // Build Puzzle
 function initializePuzzle() {
     // Load Black Squares
@@ -438,17 +450,10 @@ checkButton.addEventListener("click", () => {
     renderGrid();
 
     if (isPuzzleComplete(grid, SIZE)) {
-        currentSession.completed = true;
-
-        stopTimer();
-
-        setGameActive(false);
-
-        const completionResult = getCompletionResults();
-        
-        showCompletionmodal(completionResult);
-    }
+        finishPuzzle();
+    }; 
 });
+
 
 // Reveal Menu Listener
 revealButton.addEventListener("click", () => {
