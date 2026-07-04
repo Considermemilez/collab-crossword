@@ -1,62 +1,428 @@
 {
-  "title": "Easy #1",
-  "author": "Gregg Frey",
-
+  "id": "easy001",
+  "title": "Placeholder Test Puzzle",
+  "author": "Gregg Frey / ChatGPT",
+  "description": "Development puzzle with complete placeholder clues and answers for testing completion flow.",
   "blackSquares": [
-  [0,4], [0,5], [0,9], [0,10],
-
-  [1,3], [1,11],
-
-  [2,6],
-
-  [3,1], [3,7], [3,13],
-
-  [4,5], [4,9],
-
-  [5,2], [5,12],
-
-  [6,0], [6,6], [6,8], [6,14],
-
-  [7,4], [7,10],
-
-  [8,2], [8,12],
-
-  [9,5], [9,9],
-
-  [10,1], [10,13],
-
-  [11,3], [11,11],
-
-  [12,6],
-
-  [13,4], [13,5], [13,9], [13,10],
-
-  [14,5], [14,9]
-],
-
+    [
+      0,
+      4
+    ],
+    [
+      0,
+      5
+    ],
+    [
+      0,
+      9
+    ],
+    [
+      0,
+      10
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      1,
+      11
+    ],
+    [
+      2,
+      6
+    ],
+    [
+      3,
+      1
+    ],
+    [
+      3,
+      7
+    ],
+    [
+      3,
+      13
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      4,
+      9
+    ],
+    [
+      5,
+      2
+    ],
+    [
+      5,
+      12
+    ],
+    [
+      6,
+      0
+    ],
+    [
+      6,
+      6
+    ],
+    [
+      6,
+      8
+    ],
+    [
+      6,
+      14
+    ],
+    [
+      7,
+      4
+    ],
+    [
+      7,
+      10
+    ],
+    [
+      8,
+      2
+    ],
+    [
+      8,
+      12
+    ],
+    [
+      9,
+      5
+    ],
+    [
+      9,
+      9
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      10,
+      13
+    ],
+    [
+      11,
+      3
+    ],
+    [
+      11,
+      11
+    ],
+    [
+      12,
+      6
+    ],
+    [
+      13,
+      4
+    ],
+    [
+      13,
+      5
+    ],
+    [
+      13,
+      9
+    ],
+    [
+      13,
+      10
+    ],
+    [
+      14,
+      5
+    ],
+    [
+      14,
+      9
+    ]
+  ],
   "across": {
     "1": {
-      "answer": "CAT",
-      "clue": "Common household pet"
+      "clue": "Placeholder across clue 1 (4 letters)",
+      "answer": "CROS"
     },
     "5": {
-      "answer": "DOG",
-      "clue": "Man's best friend"
+      "clue": "Placeholder across clue 5 (3 letters)",
+      "answer": "ORD"
     },
-    "7": {
-      "answer": "SUN",
-      "clue": "Star at the center of our solar system"
+    "8": {
+      "clue": "Placeholder across clue 8 (4 letters)",
+      "answer": "ZZLE"
+    },
+    "12": {
+      "clue": "Placeholder across clue 12 (3 letters)",
+      "answer": "GRI"
+    },
+    "13": {
+      "clue": "Placeholder across clue 13 (7 letters)",
+      "answer": "TESTANS"
+    },
+    "17": {
+      "clue": "Placeholder across clue 17 (3 letters)",
+      "answer": "ERC"
+    },
+    "18": {
+      "clue": "Placeholder across clue 18 (6 letters)",
+      "answer": "LUEPLA"
+    },
+    "20": {
+      "clue": "Placeholder across clue 20 (8 letters)",
+      "answer": "GAMECROS"
+    },
+    "23": {
+      "clue": "Placeholder across clue 23 (5 letters)",
+      "answer": "ORDPU"
+    },
+    "25": {
+      "clue": "Placeholder across clue 25 (5 letters)",
+      "answer": "ZLEGR"
+    },
+    "27": {
+      "clue": "Placeholder across clue 27 (5 letters)",
+      "answer": "TESTA"
+    },
+    "29": {
+      "clue": "Placeholder across clue 29 (3 letters)",
+      "answer": "SWE"
+    },
+    "31": {
+      "clue": "Placeholder across clue 31 (5 letters)",
+      "answer": "CLUEP"
+    },
+    "34": {
+      "clue": "Placeholder across clue 34 (9 letters)",
+      "answer": "GAMECROSS"
+    },
+    "38": {
+      "clue": "Placeholder across clue 38 (5 letters)",
+      "answer": "PUZZL"
+    },
+    "41": {
+      "clue": "Placeholder across clue 41 (5 letters)",
+      "answer": "IDTES"
+    },
+    "43": {
+      "clue": "Placeholder across clue 43 (4 letters)",
+      "answer": "ANSW"
+    },
+    "44": {
+      "clue": "Placeholder across clue 44 (5 letters)",
+      "answer": "RCLUE"
+    },
+    "47": {
+      "clue": "Placeholder across clue 47 (4 letters)",
+      "answer": "LAYG"
+    },
+    "50": {
+      "clue": "Placeholder across clue 50 (9 letters)",
+      "answer": "CROSSWORD"
+    },
+    "54": {
+      "clue": "Placeholder across clue 54 (5 letters)",
+      "answer": "ZLEGR"
+    },
+    "56": {
+      "clue": "Placeholder across clue 56 (3 letters)",
+      "answer": "DTE"
+    },
+    "57": {
+      "clue": "Placeholder across clue 57 (5 letters)",
+      "answer": "TANSW"
+    },
+    "60": {
+      "clue": "Placeholder across clue 60 (11 letters)",
+      "answer": "CLUEPLAYGAM"
+    },
+    "64": {
+      "clue": "Placeholder across clue 64 (3 letters)",
+      "answer": "ROS"
+    },
+    "66": {
+      "clue": "Placeholder across clue 66 (7 letters)",
+      "answer": "WORDPUZ"
+    },
+    "67": {
+      "clue": "Placeholder across clue 67 (3 letters)",
+      "answer": "LEG"
+    },
+    "69": {
+      "clue": "Placeholder across clue 69 (6 letters)",
+      "answer": "RIDTES"
+    },
+    "71": {
+      "clue": "Placeholder across clue 71 (8 letters)",
+      "answer": "ANSWERCL"
+    },
+    "73": {
+      "clue": "Placeholder across clue 73 (4 letters)",
+      "answer": "UEPL"
+    },
+    "74": {
+      "clue": "Placeholder across clue 74 (3 letters)",
+      "answer": "GAM"
+    },
+    "75": {
+      "clue": "Placeholder across clue 75 (4 letters)",
+      "answer": "ROSS"
+    },
+    "76": {
+      "clue": "Placeholder across clue 76 (5 letters)",
+      "answer": "WORDP"
+    },
+    "78": {
+      "clue": "Placeholder across clue 78 (3 letters)",
+      "answer": "ZZL"
+    },
+    "79": {
+      "clue": "Placeholder across clue 79 (5 letters)",
+      "answer": "GRIDT"
     }
   },
-
   "down": {
     "1": {
-      "answer": "CAR",
-      "clue": "Road vehicle with four wheels"
+      "clue": "Placeholder down clue 1 (6 letters)",
+      "answer": "CGLSTL"
+    },
+    "43": {
+      "clue": "Placeholder down clue 43 (8 letters)",
+      "answer": "AAZERRUW"
+    },
+    "2": {
+      "clue": "Placeholder down clue 2 (3 letters)",
+      "answer": "RRU"
+    },
+    "28": {
+      "clue": "Placeholder down clue 28 (6 letters)",
+      "answer": "EAPNML"
+    },
+    "65": {
+      "clue": "Placeholder down clue 65 (4 letters)",
+      "answer": "OIEO"
     },
     "3": {
-      "answer": "TIN",
-      "clue": "Metal container material"
+      "clue": "Placeholder down clue 3 (5 letters)",
+      "answer": "OIEOS"
+    },
+    "55": {
+      "clue": "Placeholder down clue 55 (6 letters)",
+      "answer": "ECSDPR"
+    },
+    "19": {
+      "clue": "Placeholder down clue 19 (9 letters)",
+      "answer": "PRTGZWCGL"
+    },
+    "70": {
+      "clue": "Placeholder down clue 70 (3 letters)",
+      "answer": "TLD"
+    },
+    "13": {
+      "clue": "Placeholder down clue 13 (6 letters)",
+      "answer": "TLDAAZ"
+    },
+    "51": {
+      "clue": "Placeholder down clue 51 (5 letters)",
+      "answer": "RRUWE"
+    },
+    "14": {
+      "clue": "Placeholder down clue 14 (3 letters)",
+      "answer": "EAP"
+    },
+    "35": {
+      "clue": "Placeholder down clue 35 (4 letters)",
+      "answer": "MLRO"
+    },
+    "61": {
+      "clue": "Placeholder down clue 61 (3 letters)",
+      "answer": "EOS"
+    },
+    "24": {
+      "clue": "Placeholder down clue 24 (3 letters)",
+      "answer": "USE"
+    },
+    "45": {
+      "clue": "Placeholder down clue 45 (5 letters)",
+      "answer": "CSDPR"
+    },
+    "6": {
+      "clue": "Placeholder down clue 6 (3 letters)",
+      "answer": "RTG"
+    },
+    "30": {
+      "clue": "Placeholder down clue 30 (11 letters)",
+      "answer": "WCGLSTLDAAZ"
+    },
+    "7": {
+      "clue": "Placeholder down clue 7 (6 letters)",
+      "answer": "DAAZER"
+    },
+    "46": {
+      "clue": "Placeholder down clue 46 (8 letters)",
+      "answer": "UWEAPNML"
+    },
+    "15": {
+      "clue": "Placeholder down clue 15 (3 letters)",
+      "answer": "NML"
+    },
+    "36": {
+      "clue": "Placeholder down clue 36 (4 letters)",
+      "answer": "OIEO"
+    },
+    "62": {
+      "clue": "Placeholder down clue 62 (3 letters)",
+      "answer": "YUS"
+    },
+    "16": {
+      "clue": "Placeholder down clue 16 (6 letters)",
+      "answer": "SEECSD"
+    },
+    "52": {
+      "clue": "Placeholder down clue 52 (5 letters)",
+      "answer": "RTGZW"
+    },
+    "21": {
+      "clue": "Placeholder down clue 21 (9 letters)",
+      "answer": "CGLSTLDAA"
+    },
+    "72": {
+      "clue": "Placeholder down clue 72 (3 letters)",
+      "answer": "ERR"
+    },
+    "9": {
+      "clue": "Placeholder down clue 9 (5 letters)",
+      "answer": "ZERRU"
+    },
+    "58": {
+      "clue": "Placeholder down clue 58 (6 letters)",
+      "answer": "NMLROI"
+    },
+    "10": {
+      "clue": "Placeholder down clue 10 (3 letters)",
+      "answer": "LRO"
+    },
+    "32": {
+      "clue": "Placeholder down clue 32 (6 letters)",
+      "answer": "EOSYUS"
+    },
+    "68": {
+      "clue": "Placeholder down clue 68 (4 letters)",
+      "answer": "ECSD"
+    },
+    "11": {
+      "clue": "Placeholder down clue 11 (6 letters)",
+      "answer": "ECSDPR"
+    },
+    "48": {
+      "clue": "Placeholder down clue 48 (8 letters)",
+      "answer": "GZWCGLST"
     }
   }
 }

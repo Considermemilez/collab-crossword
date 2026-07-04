@@ -13,6 +13,7 @@ export let currentSession = {
     startTime: null,
     endTime: null,
     completed: false,
+    usedReveal: false
 }
 
 export let gameActive = false;

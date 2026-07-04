@@ -88,7 +88,7 @@ export function revealWord(grid, word, acrossWords, downWords, renderGrid) {
     if (!word) return;
 
     word.cells.forEach(cell => {
-        revealCell(grid, cell.row, cell.col, acrossWords, downWords, renderGrid);
+        revealCell(grid, cell.row, cell.col, acrossWords, downWords, () => {});
     });
 
     renderGrid();
@@ -97,11 +97,11 @@ export function revealWord(grid, word, acrossWords, downWords, renderGrid) {
 // Reveal Puzzle
 export function revealPuzzle(grid, acrossWords, downWords, renderGrid) {
     acrossWords.forEach(word => {
-        revealWord(grid, word, acrossWords, downWords, renderGrid);
+        revealWord(grid, word, acrossWords, downWords, () => {});
     });
 
     downWords.forEach(word => {
-        revealWord(grid, word, acrossWords, downWords, renderGrid);
+        revealWord(grid, word, acrossWords, downWords, () => {});
     });
 
     renderGrid();

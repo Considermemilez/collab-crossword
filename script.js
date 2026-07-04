@@ -295,6 +295,18 @@ function updateTimer() {
     `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+// Stop Timer 
+function stopTimer () {
+    currentSession.endTime = Date.now();
+
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    updateTimer();
+}
+
 // Build Puzzle
 function initializePuzzle() {
     // Load Black Squares
@@ -388,7 +400,8 @@ checkButton.addEventListener("click", () => {
 
     if (isPuzzleComplete(grid, SIZE)) {
         currentSession.completed = true;
-        currentSession.endTime = Date.now();
+
+        stopTimer();
 
         setGameActive(false);
 
@@ -406,13 +419,17 @@ revealButton.addEventListener("click", () => {
 revealLetterButton.addEventListener("click", () => {
     const { row, col } = selectedCell;
 
+    currentSession.usedReveal = true;
     revealCell(grid, row, col, acrossWords, downWords, renderGrid);
 
     revealMenu.classList.add("hidden");
 });
 
-// reveal Word Listener
+// Reveal Word Listener
 revealWordButton.addEventListener("click", () => {
+
+    currentSession.usedReveal = true;
+
     revealWord(
         grid,
         activeWord,
@@ -426,7 +443,11 @@ revealWordButton.addEventListener("click", () => {
 
 // Reveal Puzzle Listener
 revealPuzzleButton.addEventListener("click", () => {
+
+    currentSession.usedReveal = true;
+
     revealPuzzle(grid, acrossWords, downWords, renderGrid);
+    stopTimer();
 
     revealMenu.classList.add("hidden");
 });
