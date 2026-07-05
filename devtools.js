@@ -1,8 +1,11 @@
-const DEV_MODE = true; // set to false before production
+const DEV_SHORTCUTS_ENABLED = true; 
+// set to false before production
+// These shortcuts are for local testing only
+// Shortcut 4 intentionally simulates an eligible solve for testing leaderboard inserts
 
 export async function handleDevShortcut(event, grid, SIZE, renderGrid, revealPuzzle, forceEligibleCompletion) {
     // ====== Developer Shortcuts ======
-        if (!DEV_MODE) {
+        if (!DEV_SHORTCUTS_ENABLED) {
             return false;
         }
 
@@ -17,7 +20,7 @@ export async function handleDevShortcut(event, grid, SIZE, renderGrid, revealPuz
             }
 
             renderGrid();
-            console.log("Developer: Locked every cell.");
+            console.log("DEV Shortcut: Locked every white cell.");
             return true;
         }
 
@@ -32,21 +35,31 @@ export async function handleDevShortcut(event, grid, SIZE, renderGrid, revealPuz
             }
 
             renderGrid();
-            console.log("Developer: Unlocked every cell.");
+            console.log("DEV Shortcut: Unlocked every white cell.");
             return true;
         }
 
-        // 3 - Reveal Puzzle
+        // 3 - Reveal Puzzle Gris Only
+        // This is not the same as the UI reveal button
         if (event.key === "3") {
             revealPuzzle();
-            console.log("Developer: Puzzle revealed.");
+            console.log("DEV Shortcut: Revealed puzzle grid only");
             return true;
         }
 
-        // 4 - Force Complete Puzzle
+        // 4 - Force A Leaderbord Eligible Completion
+        // This is intentionally used to test leaderboard save/read behavior
         if (event.key === "4") {
+            if (typeof forceEligibleCompletion !== "function") {
+                console.warn(
+                    "DEV Shortcut: forceeligibleCompletion callback is missing."
+                );
+                return true;
+            }
+
             await forceEligibleCompletion();
-            console.log("Developer: Forced puzzle completion state.");
+            
+            console.log("DEV Shortcut: Forced puzzle completion state.");
             return true;
         }
 
