@@ -25,6 +25,7 @@ import { handleDevShortcut } from "./devtools.js";
 import { setupWelcomeScreen } from "./session.js"; 
 import { setupKeyboardInput } from "./input.js";
 import { puzzleCatalog } from "./puzzleCatalog.js";
+import { getLeaderboard } from "./leaderboardService.js";
 import { 
     validateWord, 
     isPuzzleComplete,
@@ -364,26 +365,6 @@ function getCompletionResult() {
     };
 }
 
-// Get Mock Leaderboard
-function getMockLeaderboard(puzzleId, mode) {
-    const mockLeaderboards = {
-        easy001: {
-            solo: [
-                {player: "Gregg", time: "1:38" },
-                {player: "Omi", time: "2:38" },
-                {player: "Brian", time: "5:56" },
-            ],
-            pair: [
-                {player: "Gregg and Omi", time: "1:38" },
-                {player: "Gregg and Omi", time: "5:42" },
-                {player: "Gregg and Omi", time: "18:11" },
-            ]
-        }
-    };
-
-    return mockLeaderboards[puzzleId]?.[mode] || [];
-}
-
 // Render Leaderboard
 function renderLeaderboard(leaderboard = []) {
     completionLeaderboard.innerHTML = "";
@@ -429,7 +410,7 @@ function finishPuzzle() {
 
     const completionResult = getCompletionResult();
 
-    completionResult.leaderboard = getMockLeaderboard(
+    completionResult.leaderboard = getLeaderboard(
         completionResult.puzzleId,
         completionResult.mode
     );
