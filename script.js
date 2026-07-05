@@ -413,6 +413,32 @@ function finishPuzzle() {
     showCompletionModal(completionResult);
 }
 
+// Get Game State
+function getGameState() {
+    return {
+        puzzleId: currentSession.puzzleId,
+        players: currentSession.players,
+        mode: currentSession.mode,
+        startTime: currentSession.startTime,
+        endTime: currentSession.endTime,
+        completed: currentSession.completed,
+        usedReveal: currentSession.usedReveal,
+        selectedCell,
+        direction,
+        grid
+    };
+}
+
+// Save Game State
+function saveGameState() {
+    const savedGame = getGameState();
+
+    localStorage.setItem(
+        "crosswordCurrentGame",
+        JSON.stringify(savedGame)
+    );
+}
+
 // Reset Game State
 function resetGameState() {
     activeWord = null;
@@ -572,6 +598,7 @@ checkButton.addEventListener("click", () => {
     downWords.forEach(word => validateWord(grid, word));
 
     renderGrid();
+    saveGameState();
 
     if (isPuzzleComplete(grid, SIZE)) {
         finishPuzzle();
@@ -590,6 +617,7 @@ revealLetterButton.addEventListener("click", () => {
 
     currentSession.usedReveal = true;
     revealCell(grid, row, col, acrossWords, downWords, renderGrid);
+    saveGameState();
 
     revealMenu.classList.add("hidden");
 });
@@ -607,6 +635,8 @@ revealWordButton.addEventListener("click", () => {
         renderGrid
     );
 
+    saveGameState();
+
     revealMenu.classList.add("hidden");
 });
 
@@ -616,6 +646,7 @@ revealPuzzleButton.addEventListener("click", () => {
     currentSession.usedReveal = true;
 
     revealPuzzle(grid, acrossWords, downWords, renderGrid);
+    saveGameState();
 
     revealMenu.classList.add("hidden");
 
@@ -655,7 +686,8 @@ setupKeyboardInput({
     findWordAtCell,
     getAcrossWords,
     getDownWords,
-    setActiveWord
+    setActiveWord,
+    saveGameState
 });
 
 // Active word detection

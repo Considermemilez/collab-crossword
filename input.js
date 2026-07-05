@@ -17,7 +17,8 @@ export function setupKeyboardInput({
     findWordAtCell,
     getAcrossWords,
     getDownWords,
-    setActiveWord
+    setActiveWord,
+    saveGameState
 }) {
     function updateActiveWordForCell(row, col) {
         const direction = getDirection();
@@ -121,6 +122,7 @@ export function setupKeyboardInput({
             }
     
             renderGrid();
+            saveGameState();
             return;
         }
     
@@ -148,6 +150,7 @@ export function setupKeyboardInput({
             }
     
             renderGrid();
+            saveGameState();
         }
     });
 }
