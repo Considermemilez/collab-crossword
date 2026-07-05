@@ -84,6 +84,7 @@ let selectedCell = { row: 0, col: 0 };
 let direction = "across";
 let activeWord = null;
 let timerInterval = null;
+let autosaveInterval = null;
 let selectedPuzzleId = "";
 
 // DOM Container
@@ -102,14 +103,17 @@ const playerOneInput = document.getElementById("player-one-name");
 const playerTwoInput = document.getElementById("player-two-name");
 const playerTwoSection = document.getElementById("player-two-section");
 const modeInputs = document.querySelectorAll("input[name='play-mode']");
-const puzzleSelect = document.getElementById("puzzle-select")
+const puzzleSelect = document.getElementById("puzzle-select");
+const resumeGamePanel = document.getElementById("resume-game-panel");
+const resumeGameButton = document.getElementById("resume-game-btn");
+const discardSavedGameButton = document.getElementById("discard-saved-game-btn");
 
 const completionModal = document.getElementById("completion-modal");
 const completionTime = document.getElementById("completion-time");
 const completionEligibility = document.getElementById("completion-eligibility");
 const completionCloseButton = document.getElementById("completion-close-btn");
-const completionLeaderboard = document.getElementById("completion-leaderboard")
-const completionNewGameButton = document.getElementById("completion-new-game-btn")
+const completionLeaderboard = document.getElementById("completion-leaderboard");
+const completionNewGameButton = document.getElementById("completion-new-game-btn");
 
 
 // Move selection
@@ -278,13 +282,8 @@ async function startGame() {
 
     await loadSelectedPuzzle();
 
-    updateTimer();
-
-    if (timerInterval) {
-        clearInterval(timerInterval);
-    }
-
-    timerInterval = setInterval(updateTimer, 1000);
+    startTimer();
+    startAutosave();
 }
 
 // Update Game Timer
@@ -304,6 +303,17 @@ function updateTimer() {
     `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+// Start Timer
+function startTimer() {
+    updateTimer();
+
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
 // Stop Timer 
 function stopTimer () {
     if (!currentSession.endTime) {
@@ -316,6 +326,20 @@ function stopTimer () {
     }
 
     updateTimer();
+}
+
+// Start Autosave
+function startAutosave() {
+    if (autosaveInterval) {
+        clearInterval(autosaveInterval);
+    }
+
+    autosaveInterval = setInterval(() => {
+        if (!gameActive) return;
+        if (currentSession.completed) return;
+
+        saveGameState();
+    }, 5000);
 }
 
 // Get Completion results
@@ -415,6 +439,10 @@ function finishPuzzle() {
 
 // Get Game State
 function getGameState() {
+    const endTime = currentSession.endTime || Date.now();
+
+    const elapsedMs = endTime - currentSession.startTime;
+
     return {
         puzzleId: currentSession.puzzleId,
         players: currentSession.players,
@@ -425,8 +453,40 @@ function getGameState() {
         usedReveal: currentSession.usedReveal,
         selectedCell,
         direction,
-        grid
+        grid,
+        elapsedMs
     };
+}
+
+// Restore Game State
+function restoreGameState(savedGame) {
+
+        
+    currentSession.players = [...savedGame.players];
+    currentSession.mode = savedGame.mode;
+    currentSession.puzzleId = savedGame.puzzleId;
+    currentSession.completed = savedGame.completed;
+    currentSession.usedReveal = savedGame.usedReveal;
+    currentSession.startTime = savedGame.startTime;
+    currentSession.endTime = savedGame.endTime;
+
+    if (savedGame.endTime) {
+        currentSession.startTime = savedGame.startTime;
+    } else {
+        currentSession.startTime = Date.now() - savedGame.elapsedMs
+    }
+
+    selectedCell = savedGame.selectedCell;
+    direction = savedGame.direction;
+}
+
+// Restore Grid
+function restoreGrid(savedGrid) {
+    for (let row = 0; row < SIZE; row++) {
+        for (let col = 0; col < SIZE; col++) {
+            Object.assign(grid[row][col], savedGrid[row][col]);
+        } 
+    }
 }
 
 // Save Game State
@@ -437,6 +497,28 @@ function saveGameState() {
         "crosswordCurrentGame",
         JSON.stringify(savedGame)
     );
+}
+
+// Get Saved Game State
+function getSavedGameState() {
+    const savedGame = localStorage.getItem("crosswordCurrentGame");
+
+    if (!savedGame) {
+        return null;
+    }
+
+    return JSON.parse(savedGame);
+}
+
+// Show Resume Prompt
+function showResumePromptIfSavedGameExists() {
+    const savedGame = getSavedGameState();
+
+    if (!savedGame) return;
+
+    if (savedGame.completed) return;
+
+    resumeGamePanel.classList.remove("hidden");
 }
 
 // Reset Game State
@@ -555,6 +637,19 @@ async function loadSelectedPuzzle() {
 
 }
 
+// Resume Saved Game
+async function resumeSavedGame(savedGame) {
+    restoreGameState(savedGame);
+
+    selectedPuzzleId = savedGame.puzzleId;
+
+    await loadSelectedPuzzle();
+
+    restoreGrid(savedGame.grid);
+
+    renderGrid();
+}
+
 
 // Populate Puzzle Selector
 function populatePuzzleSelector() {
@@ -579,6 +674,7 @@ function populatePuzzleSelector() {
 }
 
 populatePuzzleSelector();
+showResumePromptIfSavedGameExists();
 
 // Setup welcome Screen
 setupWelcomeScreen({
@@ -662,6 +758,41 @@ completionCloseButton.addEventListener("click", () => {
 completionNewGameButton.addEventListener("click", () => {
     returnToWelcomeScreen();
 })
+
+// Discard Saved Game Listener
+discardSavedGameButton.addEventListener("click", () => {
+    localStorage.removeItem("crosswordCurrentGame");
+    resumeGamePanel.classList.add("hidden");
+})
+
+// Resume Game listener
+resumeGameButton.addEventListener("click", async () => {
+    const savedGame = getSavedGameState();
+
+    if (!savedGame) {
+        return;
+    }
+
+    await resumeSavedGame(savedGame);
+
+    startTimer();
+    startAutosave();
+
+    resumeGamePanel.classList.add("hidden");
+
+    welcomeScreen.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
+
+    setGameActive(true);
+});
+
+// Unload Listener
+window.addEventListener("beforeunload", () => {
+    if (!gameActive) return;
+    if (currentSession.completed) return;
+
+    saveGameState();
+});
 
 // Setup Keyboard input
 setupKeyboardInput({
