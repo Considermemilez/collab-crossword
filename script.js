@@ -25,7 +25,11 @@ import { handleDevShortcut } from "./devtools.js";
 import { setupWelcomeScreen } from "./session.js"; 
 import { setupKeyboardInput } from "./input.js";
 import { puzzleCatalog } from "./puzzleCatalog.js";
-import { getLeaderboard } from "./leaderboardService.js";
+import { 
+    getLeaderboard,
+    saveLeaderboardEntry
+ } from "./leaderboardService.js";
+
 import { 
     validateWord, 
     isPuzzleComplete,
@@ -357,7 +361,13 @@ function getCompletionResult() {
         solveTime:
             `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`,
 
+        solveTimeMs,
+
         leaderboardEligible: !currentSession.usedReveal,
+
+        usedReveal: currentSession.usedReveal,
+
+        playerName: currentSession.players.join(" and "),
 
         puzzleId: currentSession.puzzleId,
 
@@ -410,12 +420,48 @@ async function finishPuzzle() {
 
     const completionResult = getCompletionResult();
 
+    if (completionResult.leaderboardEligible) {
+        await saveLeaderboardEntry({
+            puzzleId: completionResult.puzzleId,
+            mode: completionResult.mode,
+            playerName: completionResult.playerName,
+            solveTimeMs: completionResult.solveTimeMs,
+            usedReveal: completionResult.usedReveal
+        });
+    }
+
     completionResult.leaderboard = await getLeaderboard(
         completionResult.puzzleId,
         completionResult.mode
     );
 
     showCompletionModal(completionResult);
+}
+
+// Force eligible Completion for Dev
+async function forceEligibleCompletionForDev () {
+    currentSession.usedReveal = false;
+
+    const allWords = [
+        ...acrossWords,
+        ...downWords
+    ];
+
+    allWords.forEach(word => {
+        word.cells.forEach((cell, index) => {
+            const gridCell = grid[cell.row][cell.col];
+
+            gridCell.letter = word.answer[index];
+            gridCell.isCorrect = true;
+            gridCell.isWrong = false;
+            gridCell.isLocked = true;
+        });
+    });
+
+    renderGrid();
+    saveGameState();
+
+    await finishPuzzle();
 }
 
 // Get Game State
@@ -799,7 +845,8 @@ setupKeyboardInput({
     getAcrossWords,
     getDownWords,
     setActiveWord,
-    saveGameState
+    saveGameState,
+    forceEligibleCompletion: forceEligibleCompletionForDev
 });
 
 // Active word detection

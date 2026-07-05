@@ -18,7 +18,8 @@ export function setupKeyboardInput({
     getAcrossWords,
     getDownWords,
     setActiveWord,
-    saveGameState
+    saveGameState,
+    forceEligibleCompletion
 }) {
     function updateActiveWordForCell(row, col) {
         const direction = getDirection();
@@ -43,7 +44,7 @@ export function setupKeyboardInput({
         }
     }
 
-    document.addEventListener("keydown", (event) => {
+    document.addEventListener("keydown", async (event) => {
         if (!gameActive) return;
         
         const selectedCell = getSelectedCell()
@@ -51,12 +52,13 @@ export function setupKeyboardInput({
         const cell = grid[row][col];
     
         // ====== Developer Shortcuts ======
-        const devHandled = handleDevShortcut(
+        const devHandled = await handleDevShortcut(
             event, 
             grid, 
             SIZE, 
             renderGrid, 
-            () => revealPuzzle(grid, getAcrossWords(), getDownWords(), renderGrid )
+            () => revealPuzzle(grid, getAcrossWords(), getDownWords(), renderGrid),
+            forceEligibleCompletion
         );
         if (devHandled) return;
     

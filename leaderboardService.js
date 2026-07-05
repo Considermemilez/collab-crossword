@@ -9,7 +9,7 @@ function formatSolveTime(solveTimeMs) {
 
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
-
+// Get Leaderboard Entries
 export async function getLeaderboard(puzzleId, mode) {
     const { data, error} = await supabaseClient
         .from("leaderboard_entries")
@@ -29,6 +29,33 @@ export async function getLeaderboard(puzzleId, mode) {
         player: entry.player_name,
         time: formatSolveTime(entry.solve_time_ms)
     }));
+}
+
+// Save Leaderboard Entry
+export async function saveLeaderboardEntry({
+    puzzleId,
+    mode,
+    playerName,
+    solveTimeMs,
+    usedReveal
+}) {
+    if (usedReveal) {
+        return;
+    }
+
+    const { error } = await supabaseClient
+    .from("leaderboard_entries")
+    .insert({
+        puzzle_id: puzzleId,
+        mode,
+        player_name: playerName,
+        solve_time_ms: solveTimeMs,
+        used_reveal: usedReveal
+    });
+
+    if (error) {
+        console.error("Failed to save leaderboard entry:", error);
+    }
 }
 
 

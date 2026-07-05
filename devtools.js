@@ -1,6 +1,6 @@
 const DEV_MODE = true; // set to false before production
 
-export function handleDevShortcut(event, grid, SIZE, renderGrid, revealPuzzle) {
+export async function handleDevShortcut(event, grid, SIZE, renderGrid, revealPuzzle, forceEligibleCompletion) {
     // ====== Developer Shortcuts ======
         if (!DEV_MODE) {
             return false;
@@ -45,19 +45,11 @@ export function handleDevShortcut(event, grid, SIZE, renderGrid, revealPuzzle) {
 
         // 4 - Force Complete Puzzle
         if (event.key === "4") {
-            for (let r = 0; r < SIZE; r++) {
-                for (let c = 0; c < SIZE; c++) {
-                    if (!grid[r][c].isBlack) {
-                        grid[r][c].isLocked = true;
-                        grid[r][c].isCorrect = true;
-                        grid[r][c].isWrong = false;
-                    }
-                }
-            }
-
-            renderGrid();
+            await forceEligibleCompletion();
             console.log("Developer: Forced puzzle completion state.");
             return true;
         }
+
+        return false;
 }
 
