@@ -384,10 +384,26 @@ function renderLeaderboard(leaderboard = []) {
         return;
     }
 
-    leaderboard.forEach(entry => {
+    leaderboard.forEach((entry, index) => {
         const row = document.createElement("div");
+        row.classList.add("leaderboard-row");
 
-        row.textContent = `${entry.player} - ${entry.time}`;
+        const rank = document.createElement("span");
+        rank.classList.add("leaderboard-rank");
+        rank.textContent = `#${index + 1}`;
+
+        const player = document.createElement("span");
+        player.classList.add("leaderboard-player")
+        player.textContent = entry.player;
+
+        const time = document.createElement("span");
+        time.classList.add("leaderboard-time");
+        time.textContent = entry.time;
+
+        row.appendChild(rank);
+        row.appendChild(player);
+        row.appendChild(time);
+        
 
         completionLeaderboard.appendChild(row);
     });

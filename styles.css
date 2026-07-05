@@ -112,6 +112,32 @@ body {
     cursor: pointer;
 }
 
+.leaderboard-row {
+    display: grid;
+    grid-template-columns: 48px 1fr 64px;
+    gap: 8px;
+    align-items: center;
+
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+
+    font-size: 14px;
+}
+
+.leaderboard-rank {
+    font-weight: bold;
+    text-align: left;
+}
+
+.leaderboard-player {
+    text-align: left;
+}
+
+.leaderboard-time {
+    font-family: monospace;
+    text-align: right;
+}
+
 #clues {
     display: flex;
     gap: 40px;
@@ -170,4 +196,8 @@ body {
 #game-screen.hidden,
 #welcome-screen.hidden {
     display: none !important;
+}
+
+#completion-leaderboard {
+    margin-top: 12px;
 }
