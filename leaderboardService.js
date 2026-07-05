@@ -1,26 +1,4 @@
-export function getLeaderboard(puzzleId, mode) {
-    const mockLeaderboards = {
-        easy001: {
-            solo: [
-                { playerName: "Gregg", solveTimeMs: "98000" },
-                { playerName: "Omi", solveTimeMs: "158000" },
-                { playerName: "Brian", solveTimeMs: "356000" },
-            ],
-            pair: [
-                { playerName: "Gregg and Omi", solveTimeMs: "98000" },
-                { playerName: "Gregg and Omi", solveTimeMs: "342000" },
-                { playerName: "Gregg and Omi", solveTimeMs: "1091000" },
-            ]
-        }
-    };
-
-    const leaderboard = mockLeaderboards[puzzleId]?.[mode] || [];
-
-    return leaderboard.map(entry => ({
-        player: entry.playerName,
-        time: formatSolveTime(entry.solveTimeMs)
-    }));
-}
+import { supabaseClient } from "./supabaseClient.js";
 
 // Format Solve Time
 function formatSolveTime(solveTimeMs) {
@@ -31,3 +9,26 @@ function formatSolveTime(solveTimeMs) {
 
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
+
+export async function getLeaderboard(puzzleId, mode) {
+    const { data, error} = await supabaseClient
+        .from("leaderboard_entries")
+        .select("player_name, solve_time_ms")
+        .eq("puzzle_id", puzzleId)
+        .eq("mode", mode)
+        .eq("used_reveal", false)
+        .order("solve_time_ms", { ascending: true})
+        .limit(10);
+        
+    if (error) {
+        console.error("Failed to load leaderboard:", error);
+        return [];
+    }
+
+    return data.map(entry => ({
+        player: entry.player_name,
+        time: formatSolveTime(entry.solve_time_ms)
+    }));
+}
+
+

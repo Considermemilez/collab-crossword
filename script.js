@@ -401,7 +401,7 @@ function showCompletionModal(completionResult) {
 }
 
 // Finish Puzzle
-function finishPuzzle() {
+async function finishPuzzle() {
     currentSession.completed = true;
 
     stopTimer();
@@ -410,7 +410,7 @@ function finishPuzzle() {
 
     const completionResult = getCompletionResult();
 
-    completionResult.leaderboard = getLeaderboard(
+    completionResult.leaderboard = await getLeaderboard(
         completionResult.puzzleId,
         completionResult.mode
     );
@@ -670,7 +670,7 @@ setupWelcomeScreen({
 });
 
 // Check Answers Button Listener
-checkButton.addEventListener("click", () => {
+checkButton.addEventListener("click", async () => {
     acrossWords.forEach(word => validateWord(grid, word));
     downWords.forEach(word => validateWord(grid, word));
 
@@ -718,7 +718,7 @@ revealWordButton.addEventListener("click", () => {
 });
 
 // Reveal Puzzle Listener
-revealPuzzleButton.addEventListener("click", () => {
+revealPuzzleButton.addEventListener("click", async () => {
 
     currentSession.usedReveal = true;
 
@@ -727,7 +727,7 @@ revealPuzzleButton.addEventListener("click", () => {
 
     revealMenu.classList.add("hidden");
 
-    finishPuzzle();
+    await finishPuzzle();
 });
 
 // Completion Modal Close Listener
