@@ -2,7 +2,8 @@ import "./supabaseClient.js";
 import { setupAuthUI } from "./authUI.js";
 import { 
     createCrosswordRoom,
-    getCrosswordRoomSummaries
+    getCrosswordRoomSummaries,
+    joinRoom
 } from "./roomService.js";
 import "./script.js";
 
@@ -26,10 +27,16 @@ function updateStartGameAuthgate({ user, profile }) {
             playerOneInput.value = profile.display_name;
         }
 
+        refreshRoomList();
+
         return;
     }
 
     startGameButton.textContent = "Sign in to Start Game";
+
+    if (roomList) {
+        roomList.textContent = "Sign in to see available rooms."
+    }
 }
 
 setupAuthUI({
@@ -101,8 +108,30 @@ function renderRoomList(rooms) {
         details.textContent =
             `${room.visibility} • ${room.playerCount}/${room.maxPlayers} players • ${room.puzzleId} • ${room.mode}`;
 
+        const joinButton = document.createElement("button");
+        joinButton.textContent = "Join Room";
+        joinButton.classList.add("join-room-btn");
+
+        joinButton.disabled = room.playerCount >= room.maxPlayers;
+
+        joinButton.addEventListener("click", async () => {
+            createRoomStatus.textContent = `Joining room: ${room.roomName}...`;
+
+            const joinedPlayer = await joinRoom(room.id);
+
+            if (!joinedPlayer) {
+                createRoomStatus.textContent = "Could not join room. Check the console.";
+                return;
+            }
+
+            createRoomStatus.textContent = `Joined room: ${room.roomName}`;
+
+            await refreshRoomList();
+        });
+
         row.appendChild(title);
         row.appendChild(details);
+        row.appendChild(joinButton);
 
         roomList.appendChild(row);
     });

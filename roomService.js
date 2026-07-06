@@ -185,3 +185,77 @@ export async function getCrosswordRoomSummaries() {
         mode: room.crossword_room_settings?.[0]?.mode || "Unknown"
     }));
 }
+
+export async function getRoomById(roomId) {
+    const { data, error } = await supabaseClient
+        .from("game_rooms")
+        .select("id, game_key, room_name, visibility, status, max_players")
+        .eq("id", roomId)
+        .single();
+
+    if (error) {
+        console.error("Failed to load room:", error);
+        return null;
+    }
+
+    return data;
+}
+
+export async function joinRoom(roomId) {
+    const user = await getCurrentUser();
+
+    if (!user) {
+        console.error("Cannot join room without a signed-in user.");
+        return null;
+    }
+
+    const profile = await getCurrentUserProfile();
+
+    if (!profile) {
+        console.error("Cannot join room without a user profile.");
+        return null;
+    }
+
+    const players = await getRoomPlayers(roomId);
+
+    const alreadyJoined = players.some(player =>
+        player.user_id === user.id
+    );
+
+    if (alreadyJoined) {
+        console.warn("User has already joined this room.");
+        return null;
+    }
+
+    const room = await getRoomById(roomId);
+
+    if (!room) {
+        console.error("Cannot join missing room.");
+        return null;
+    }
+
+    if (players.length >= room.max_players) {
+        console.error("Cannot join room because it is full.");
+        return null;
+    }
+
+    const nextPlayerOrder = players.length + 1;
+
+    const { data, error } = await supabaseClient
+        .from("game_players")
+        .insert({
+            room_id: roomId,
+            user_id: user.id,
+            display_name: profile.display_name,
+            player_order: nextPlayerOrder
+        })
+        .select("id, room_id, user_id, display_name, player_order")
+        .single();
+
+    if (error) {
+        console.error("Failed to join room:", error);
+        return null;
+    }
+
+    return data;
+}
