@@ -292,3 +292,36 @@ button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+#room-list-panel {
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    max-width: 420px;
+}
+
+#room-list-panel h3 {
+    margin-top: 0;
+}
+
+#refresh-rooms-btn {
+    padding: 6px 12px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.room-row {
+    border-bottom: 1px solid #eee;
+    padding: 8px 0;
+}
+
+.room-row:last-child {
+    border-bottom: none;
+}
+
+.room-details {
+    font-size: 13px;
+    color: #555;
+    margin-top: 4px;
+}

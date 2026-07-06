@@ -146,3 +146,42 @@ export async function createCrosswordRoom({
 
     return room;
 }
+
+export async function getCrosswordRoomSummaries() {
+    const { data, error } = await supabaseClient
+        .from("game_rooms")
+        .select(`
+            id,
+            room_name,
+            visibility,
+            status,
+            max_players,
+            created_at,
+            game_players (
+                id
+            ),
+            crossword_room_settings (
+                puzzle_id,
+                mode
+            )
+        `)
+        .eq("game_key", "crossword")
+        .eq("status", "lobby")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.error("Failed to load crossword room summaries:", error);
+        return [];
+    }
+
+    return data.map(room => ({
+        id: room.id,
+        roomName: room.room_name,
+        visibility: room.visibility,
+        status: room.status,
+        playerCount: room.game_players.length,
+        maxPlayers: room.max_players,
+        puzzleId: room.crossword_room_settings?.[0]?.puzzle_id || "Unknown",
+        mode: room.crossword_room_settings?.[0]?.mode || "Unknown"
+    }));
+}

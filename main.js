@@ -1,6 +1,9 @@
 import "./supabaseClient.js";
 import { setupAuthUI } from "./authUI.js";
-import { createCrosswordRoom } from "./roomService.js";
+import { 
+    createCrosswordRoom,
+    getCrosswordRoomSummaries
+} from "./roomService.js";
 import "./script.js";
 
 
@@ -54,6 +57,8 @@ const roomVisibilitySelect = document.getElementById("room-visibility-select");
 const createRoomButton = document.getElementById("create-room-btn");
 const createRoomStatus = document.getElementById("create-room-status");
 const puzzleSelect = document.getElementById("puzzle-select");
+const refreshRoomsButton = document.getElementById("refresh-rooms-btn");
+const roomList = document.getElementById("room-list");
 
 createRoomButton.addEventListener("click", async () => {
     createRoomStatus.textContent = "Creating room...";
@@ -72,7 +77,48 @@ createRoomButton.addEventListener("click", async () => {
 
     createRoomStatus.textContent = `Created room: ${room.room_name}`;
     roomNameInput.value = "";
+
+    await refreshRoomList();
 });
+
+function renderRoomList(rooms) {
+    roomList.innerHTML = "";
+
+    if (rooms.length === 0) {
+        roomList.textContent = "No open rooms.";
+        return;
+    }
+
+    rooms.forEach(room => {
+        const row = document.createElement("div");
+        row.classList.add("room-row");
+
+        const title = document.createElement("strong");
+        title.textContent = room.roomName;
+
+        const details = document.createElement("div");
+        details.classList.add("room-details");
+        details.textContent =
+            `${room.visibility} • ${room.playerCount}/${room.maxPlayers} players • ${room.puzzleId} • ${room.mode}`;
+
+        row.appendChild(title);
+        row.appendChild(details);
+
+        roomList.appendChild(row);
+    });
+}
+
+async function refreshRoomList() {
+    roomList.textContent = "Loading rooms...";
+
+    const rooms = await getCrosswordRoomSummaries();
+
+    renderRoomList(rooms);
+}
+
+refreshRoomsButton.addEventListener("click", refreshRoomList);
+
+refreshRoomList();
 
 
 
