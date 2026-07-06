@@ -1,10 +1,11 @@
-import "./supabaseClient.js";
+import { supabaseClient} from "./supabaseClient.js";
 import { setupAuthUI } from "./authUI.js";
 import { 
     createCrosswordRoom,
     getCrosswordRoomSummaries,
     getCrosswordRoomDetails,
-    joinRoom
+    joinRoom,
+    startCrosswordRoom
 } from "./roomService.js";
 import "./script.js";
 
@@ -30,6 +31,11 @@ const roomLobbyDetails = document.getElementById("room-lobby-details");
 const roomLobbyPlayers = document.getElementById("room-lobby-players");
 const roomLobbyStartButton = document.getElementById("room-lobby-start-btn");
 const roomLobbyStatus = document.getElementById("room-lobby-status");
+
+// State
+let currentRoomId = null;
+let roomRealtimeChannel = null;
+let roomLobbyRefreshInterval = null;
 
 
 // Show Platform Screen
@@ -139,24 +145,26 @@ function renderRoomList(rooms) {
             joinButton.textContent = "Room Full";
             joinButton.disabled = true;
         } else {
-            joinButton.textContent = "Join Room";
+            joinButton.textContent =
+                room.status === "active" ? "Join Active Game" : "Join Room";
+
             joinButton.disabled = false;
-        }
 
-        joinButton.addEventListener("click", async () => {
-            createRoomStatus.textContent = `Joining room: ${room.roomName}...`;
+            joinButton.addEventListener("click", async () => {
+                createRoomStatus.textContent = `Joining room: ${room.roomName}...`;
 
-            const joinedRoom = await joinRoom(room.id);
+                const joinedRoom = await joinRoom(room.id);
 
-            if (!joinedRoom) {
-                createRoomStatus.textContent = "Could not join room. Check the console.";
-                return;
-            }
+                if (!joinedRoom) {
+                    createRoomStatus.textContent = "Could not join room. Check the console.";
+                    return;
+                }
 
-            createRoomStatus.textContent = `Joined room: ${room.roomName}`;
+                createRoomStatus.textContent = `Joined room: ${room.roomName}`;
 
-            await refreshRoomList();
-        });
+                await openRoomLobby(room.id);
+            });
+}
 
         row.appendChild(title);
         row.appendChild(details);
@@ -186,32 +194,148 @@ function renderRoomLobby(room) {
         roomLobbyPlayers.appendChild(playerRow);
     });
 
-    if (room.isCurrentUserCreator) {
+    if (room.status === "active") {
+        roomLobbyStartButton.textContent = "Game Started";
+        roomLobbyStartButton.disabled = true;
+        roomLobbyStatus.textContent = "Room is active. Shared crossword loading comes next.";
+    } else if (room.isCurrentUserCreator) {
         roomLobbyStartButton.textContent = "Start Game";
+        roomLobbyStartButton.disabled = false;
+        roomLobbyStatus.textContent = "You are the host. You can start this room.";
     } else {
         roomLobbyStartButton.textContent = "Waiting for host";
+        roomLobbyStartButton.disabled = true;
+        roomLobbyStatus.textContent = "Waiting for the host to start the room.";
     }
-
-    roomLobbyStartButton.disabled = true;
-    roomLobbyStatus.textContent = "Room lobby created. Shared game start comes next.";
 }
 
 // Open Room lobby
 async function openRoomLobby(roomId) {
-    const room = await getCrosswordRoomDetails(roomId);
+    currentRoomId = roomId;
+
+    const refreshed = await refreshRoomLobbyView();
+
+    if (!refreshed) {
+        return;
+    }
+
+    showPlatformScreen("room-lobby");
+    subscribeToRoomUpdates(roomId);
+    startRoomLobbyPolling();
+}
+
+// Refresh Room Lobby View
+async function refreshRoomLobbyView() {
+    if (!currentRoomId) {
+        return false;
+    }
+
+    const room = await getCrosswordRoomDetails(currentRoomId);
 
     if (!room) {
         roomLobbyStatus.textContent = "Could not load room.";
-        return;
+        return false;
     }
 
     if (!room.isCurrentUserInRoom) {
         roomLobbyStatus.textContent = "Join this room before entering.";
-        return;
+        return false;
     }
 
     renderRoomLobby(room);
-    showPlatformScreen("room-lobby");
+    return true;
+}
+
+// Stop Room Lobby Polling
+function stopRoomLobbyPolling() {
+    if (!roomLobbyRefreshInterval) {
+        return;
+    }
+
+    clearInterval(roomLobbyRefreshInterval);
+    roomLobbyRefreshInterval = null;
+}
+
+// Start Room lobby Polling
+function startRoomLobbyPolling() {
+    stopRoomLobbyPolling();
+
+    roomLobbyRefreshInterval = setInterval(async () => {
+        await refreshRoomLobbyView();
+    }, 2000);
+}
+
+// Unsubscribe from Room Updates
+function unsubscribeFromRoomUpdates() {
+    if (!roomRealtimeChannel) {
+        return;
+    }
+
+    supabaseClient.removeChannel(roomRealtimeChannel);
+    roomRealtimeChannel = null;
+}
+
+// Subscribe to Room Updates
+function subscribeToRoomUpdates(roomId) {
+    unsubscribeFromRoomUpdates();
+
+    roomRealtimeChannel = supabaseClient
+        .channel(`room-${roomId}`)
+        .on(
+            "postgres_changes",
+            {
+                event: "UPDATE",
+                schema: "public",
+                table: "game_rooms",
+                filter: `id=eq.${roomId}`
+            },
+            async (payload) => {
+                console.log("Realtime game_rooms update:", payload);
+                await refreshRoomLobbyView();
+            }
+        )
+        .on(
+            "postgres_changes",
+            {
+                event: "INSERT",
+                schema: "public",
+                table: "game_players",
+                filter: `room_id=eq.${roomId}`
+            },
+            async (payload) => {
+                console.log("Realtime game_players insert:", payload);
+                await refreshRoomLobbyView();
+            }
+        )
+        .on(
+            "postgres_changes",
+            {
+                event: "UPDATE",
+                schema: "public",
+                table: "game_players",
+                filter: `room_id=eq.${roomId}`
+            },
+            async (payload) => {
+                console.log("Realtime game_players update:", payload);
+                await refreshRoomLobbyView();
+            }
+        )
+        .on(
+            "postgres_changes",
+            {
+                event: "DELETE",
+                schema: "public",
+                table: "game_players",
+                filter: `room_id=eq.${roomId}`
+            },
+            async (payload) => {
+                console.log("Realtime game_players delete:", payload);
+                await refreshRoomLobbyView();
+            }
+        )
+        .subscribe((status, error) => {
+            console.log("Room realtime subscription status:", status, error);
+        });
 }
 
 // Refresh Room List
@@ -253,7 +377,7 @@ selectCrosswordButton.addEventListener("click", async () => {
 
 // Back To Games Button
 backToGamesButton.addEventListener("click", async () => {
-    showPlatformScreen("crossword-lobby");
+    showPlatformScreen("game-select");
     await refreshRoomList();
 });
 
@@ -277,7 +401,7 @@ createRoomButton.addEventListener("click", async () => {
     createRoomStatus.textContent = `Created room: ${room.room_name}`;
     roomNameInput.value = "";
 
-    await refreshRoomList();
+    await openRoomLobby(room.id);
 });
 
 // Game Screen Account Button listener 
@@ -292,10 +416,32 @@ crosswordLobbyAccountButton.addEventListener("click", () => {
 
 // Lobby Back Button Listener
 roomLobbyBackButton.addEventListener("click", async () => {
+    unsubscribeFromRoomUpdates();
+    stopRoomLobbyPolling();
+    currentRoomId = null;
+
     showPlatformScreen("crossword-lobby");
     await refreshRoomList();
 });
 
+// Lobby Start Button Listener
+roomLobbyStartButton.addEventListener("click", async () => {
+    if (!currentRoomId) {
+        roomLobbyStatus.textContent = "No room selected.";
+        return;
+    }
+
+    roomLobbyStatus.textContent = "Starting room...";
+
+    const startedRoom = await startCrosswordRoom(currentRoomId);
+
+    if (!startedRoom) {
+        roomLobbyStatus.textContent = "Could not start room. Only the host can start.";
+        return;
+    }
+
+    await refreshRoomLobbyView();
+});
 
 
 // Refresh Rooms Button listener

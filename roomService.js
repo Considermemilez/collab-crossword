@@ -171,7 +171,7 @@ export async function getCrosswordRoomSummaries() {
             )
         `)
         .eq("game_key", "crossword")
-        .eq("status", "lobby")
+        .in("status", ["lobby", "active"])
         .order("created_at", { ascending: false });
 
     if (error) {
@@ -282,6 +282,17 @@ export async function joinRoom(roomId) {
         return null;
     }
 
+    const { error: roomUpdateError } = await supabaseClient
+        .from("game_rooms")
+        .update({
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", roomId);
+
+    if (roomUpdateError) {
+        console.error("Joined room, but failed to update room timestamp:", roomUpdateError);
+    }
+
     return data;
 }
 
@@ -345,4 +356,31 @@ export async function getCrosswordRoomDetails(roomId) {
         ),
         isCurrentUserCreator: data.created_by === currentUser?.id
     };
+}
+
+export async function startCrosswordRoom(roomId) {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+        console.error("Cannot start room without signed-in user.");
+        return null;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("game_rooms")
+        .update({
+            status: "active",
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", roomId)
+        .eq("created_by", currentUser.id)
+        .select("id, status")
+        .single();
+
+    if (error) {
+        console.error("Error starting crossword room:", error);
+        return null;
+    }
+
+    return data;
 }
