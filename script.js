@@ -44,6 +44,8 @@ import {
     unsubscribeFromCrosswordFocus
 } from "./crosswordFocusService.js";
 
+import { getCurrentUser } from "./authService.js";
+
 import { 
     validateWord, 
     isPuzzleComplete,
@@ -107,6 +109,7 @@ let autosaveInterval = null;
 let selectedPuzzleId = "";
 let crosswordCellsChannel = null;
 let crosswordFocusChannel = null;
+let currentUserId = null;
 
 // DOM Container
 const gridContainer = document.getElementById("grid");
@@ -304,6 +307,7 @@ function renderGrid() {
 async function startGame() {
     selectedPuzzleId = puzzleSelect.value;
     currentSession.roomId = null;
+    currentUserId = null;
 
     unsubscribeFromSharedRoomCells();
     unsubscribeFromSharedRoomFocus();
@@ -318,6 +322,9 @@ async function startGame() {
 // Export Start Game
 export async function startRoomGame(room) {
     selectedPuzzleId = room.puzzleId;
+
+    const currentUser = await getCurrentUser();
+    currentUserId = currentUser?.id || null;
 
     currentSession.roomId = room.id;
     currentSession.players = room.players.map(player => player.displayName);
@@ -489,7 +496,18 @@ function getWordForFocus(row, col, nextDirection) {
 }
 
 // Apply Shared Focus
-function applySharedFocus(focusState) {
+function applySharedFocus(
+    focusState,
+    options = { ignoreOwnUpdates: true }    
+) {
+    if (
+        options.ignoreOwnUpdates &&
+        currentUserId &&
+        focusState.updated_by === currentUserId
+    ) {
+        return;
+    }
+
     const row = focusState.row_index;
     const col = focusState.col_index;
     const nextDirection = focusState.direction;
@@ -522,7 +540,7 @@ async function loadSharedRoomFocus(roomId) {
         return;
     }
 
-    applySharedFocus(focusState);
+    applySharedFocus(focusState, { ignoreOwnUpdates: false});
 }
 
 // Subscribe to Shared Room Focus
