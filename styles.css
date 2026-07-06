@@ -342,3 +342,14 @@ button:disabled {
     margin-top: 4px;
     color: #333;
 }
+
+#auth-screen,
+#game-select-screen {
+    margin-bottom: 20px;
+}
+
+#select-crossword-btn {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 16px;
+}

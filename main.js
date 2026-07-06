@@ -7,8 +7,41 @@ import {
 } from "./roomService.js";
 import "./script.js";
 
+// DOM References
+const roomNameInput = document.getElementById("room-name-input");
+const roomVisibilitySelect = document.getElementById("room-visibility-select");
+const createRoomButton = document.getElementById("create-room-btn");
+const createRoomStatus = document.getElementById("create-room-status");
+const puzzleSelect = document.getElementById("puzzle-select");
+const refreshRoomsButton = document.getElementById("refresh-rooms-btn");
+const roomList = document.getElementById("room-list");
+const authScreen = document.getElementById("auth-screen");
+const gameSelectScreen = document.getElementById("game-select-screen");
+const welcomeScreen = document.getElementById("welcome-screen");
+const selectCrosswordButton = document.getElementById("select-crossword-btn");
 
-function updateStartGameAuthgate({ user, profile }) {
+
+// Show Platform Screen
+function showPlatformScreen(screenName) {
+    authScreen.classList.add("hidden");
+    gameSelectScreen.classList.add("hidden");
+    welcomeScreen.classList.add("hidden");
+
+    if (screenName === "auth") {
+        authScreen.classList.remove("hidden");
+    }
+
+    if (screenName === "game-select") {
+        gameSelectScreen.classList.remove("hidden");
+    }
+
+    if (screenName === "crossword-lobby") {
+        welcomeScreen.classList.remove("hidden");
+    }
+}
+
+// Update Start Game Auth Gate
+function updateStartGameAuthGate({ user, profile }) {
     const startGameButton = document.getElementById("start-game-btn");
     const playerOneInput = document.getElementById("player-one-name");
 
@@ -28,6 +61,7 @@ function updateStartGameAuthgate({ user, profile }) {
         }
 
         refreshRoomList();
+        showPlatformScreen("game-select");
 
         return;
     }
@@ -37,57 +71,11 @@ function updateStartGameAuthgate({ user, profile }) {
     if (roomList) {
         roomList.textContent = "Sign in to see available rooms."
     }
+
+    showPlatformScreen("auth");
 }
 
-setupAuthUI({
-    authStatus: document.getElementById("auth-status"),
-    authEmailInput: document.getElementById("auth-email"),
-    authPasswordInput: document.getElementById("auth-password"),
-    signUpButton: document.getElementById("auth-sign-up-btn"),
-    signInButton: document.getElementById("auth-sign-in-btn"),
-    signOutButton: document.getElementById("auth-sign-out-btn"),
-    profilePanel: document.getElementById("profile-panel"),
-    profileDisplayNameInput: document.getElementById("profile-display-name"),
-    profileSaveButton: document.getElementById("profile-save-btn"),
-    onDisplayNameAvailable: (displayName) => {
-        const playerOneInput = document.getElementById("player-one-name");
-
-        if (playerOneInput) {
-            playerOneInput.value = displayName;
-        }
-    },
-    onAuthStateChange: updateStartGameAuthgate
-});
-
-const roomNameInput = document.getElementById("room-name-input");
-const roomVisibilitySelect = document.getElementById("room-visibility-select");
-const createRoomButton = document.getElementById("create-room-btn");
-const createRoomStatus = document.getElementById("create-room-status");
-const puzzleSelect = document.getElementById("puzzle-select");
-const refreshRoomsButton = document.getElementById("refresh-rooms-btn");
-const roomList = document.getElementById("room-list");
-
-createRoomButton.addEventListener("click", async () => {
-    createRoomStatus.textContent = "Creating room...";
-
-    const room = await createCrosswordRoom({
-        roomName: roomNameInput.value,
-        visibility: roomVisibilitySelect.value,
-        puzzleId: puzzleSelect.value,
-        mode: "pair"
-    });
-
-    if (!room) {
-        createRoomStatus.textContent = "Could not create room. Check the console.";
-        return;
-    }
-
-    createRoomStatus.textContent = `Created room: ${room.room_name}`;
-    roomNameInput.value = "";
-
-    await refreshRoomList();
-});
-
+// Render Room List
 function renderRoomList(rooms) {
     roomList.innerHTML = "";
 
@@ -159,6 +147,7 @@ function renderRoomList(rooms) {
     });
 }
 
+// Refresh Room List
 async function refreshRoomList() {
     roomList.textContent = "Loading rooms...";
 
@@ -167,6 +156,59 @@ async function refreshRoomList() {
     renderRoomList(rooms);
 }
 
+
+// Setup Auth UI
+setupAuthUI({
+    authStatus: document.getElementById("auth-status"),
+    authEmailInput: document.getElementById("auth-email"),
+    authPasswordInput: document.getElementById("auth-password"),
+    signUpButton: document.getElementById("auth-sign-up-btn"),
+    signInButton: document.getElementById("auth-sign-in-btn"),
+    signOutButton: document.getElementById("auth-sign-out-btn"),
+    profilePanel: document.getElementById("profile-panel"),
+    profileDisplayNameInput: document.getElementById("profile-display-name"),
+    profileSaveButton: document.getElementById("profile-save-btn"),
+    onDisplayNameAvailable: (displayName) => {
+        const playerOneInput = document.getElementById("player-one-name");
+
+        if (playerOneInput) {
+            playerOneInput.value = displayName;
+        }
+    },
+    onAuthStateChange: updateStartGameAuthGate
+});
+
+// Select Crossword button Listener
+selectCrosswordButton.addEventListener("click", async () => {
+    showPlatformScreen("crossword-lobby");
+    await refreshRoomList();
+});
+
+
+// Create Room Button Listener
+createRoomButton.addEventListener("click", async () => {
+    createRoomStatus.textContent = "Creating room...";
+
+    const room = await createCrosswordRoom({
+        roomName: roomNameInput.value,
+        visibility: roomVisibilitySelect.value,
+        puzzleId: puzzleSelect.value,
+        mode: "pair"
+    });
+
+    if (!room) {
+        createRoomStatus.textContent = "Could not create room. Check the console.";
+        return;
+    }
+
+    createRoomStatus.textContent = `Created room: ${room.room_name}`;
+    roomNameInput.value = "";
+
+    await refreshRoomList();
+});
+
+
+// Refresh Rooms Button listener
 refreshRoomsButton.addEventListener("click", refreshRoomList);
 
 refreshRoomList();

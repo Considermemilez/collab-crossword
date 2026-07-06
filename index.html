@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="'en">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,49 +8,59 @@
 </head>
 <body>
 
-    <h1>Crossword</h1>
+    <h1>Games by Gregg</h1>
 
-    <div id="welcome-screen">
-        <h2>Start a Crossword</h2>
-
+    <div id="auth-screen">
         <div id="auth-panel">
             <h3>Account</h3>
 
             <p id="auth-status">Checking account...</p>
 
-            <input
-                id="auth-email"
-                type="email"
-                placeholder="Email"
-                autocomplete="email"
+            <input 
+                id="auth-email" 
+                type="email" 
+                placeholder="Email" 
+                autocomplete="email" 
             />
 
-            <input
-                id="auth-password"
-                type="password"
-                placeholder="Password"
-                autocomplete="current-password"
-                />
+            <input 
+                id="auth-password" 
+                type="password" 
+                placeholder="Password" 
+                autocomplete="current-password" 
+            />
 
             <div id="auth-actions">
                 <button id="auth-sign-up-btn">Sign Up</button>
                 <button id="auth-sign-in-btn">Sign In</button>
-                <button id="auth-sign-out-btn">Sign Out</button>
-            </div>    
-        </div>
+                <button id="auth-sign-out-btn" class="hidden">Sign Out</button>
+            </div>
 
-        <div id="profile-panel" class="hidden">
-            <label for="profile-display-name">Display name:</label>
-            <input
-                id="profile-display-name"
-                type="text"
-                placeholder="User"
-            />
+            <div id="profile-panel" class="hidden">
+                <label for="profile-display-name">Display name:</label>
+                <input 
+                    id="profile-display-name" 
+                    type="text" 
+                    placeholder="Gregg" 
+                />
 
-            <button id="profile-save-btn">
-                Save Display Name
-            </button>
+                <button id="profile-save-btn">
+                    Save Display Name
+                </button>
+            </div>
         </div>
+    </div>
+
+    <div id="game-select-screen" class="hidden">
+        <h2>Choose a Game</h2>
+
+        <button id="select-crossword-btn">
+            Crossword
+        </button>
+    </div>
+
+    <div id="welcome-screen" class="'hidden">
+        <h2>Start a Crossword</h2>
 
         <div id="resume-game-panel" class="hidden">
             <p>You have an unfinished puzzle.</p>
@@ -128,6 +138,7 @@
         <button id="start-game-btn" disabled>
             Sign in to Start Game</button>
     </div>
+
     <div id="game-screen" class="hidden">
 
     
