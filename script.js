@@ -37,6 +37,13 @@ import {
     unsubscribeFromCrosswordCellUpdates
 } from "./crosswordSyncService.js"; 
 
+import {
+    saveCrosswordFocus,
+    loadCrosswordFocus,
+    subscribeToCrosswordFocus,
+    unsubscribeFromCrosswordFocus
+} from "./crosswordFocusService.js";
+
 import { 
     validateWord, 
     isPuzzleComplete,
@@ -99,6 +106,7 @@ let timerInterval = null;
 let autosaveInterval = null;
 let selectedPuzzleId = "";
 let crosswordCellsChannel = null;
+let crosswordFocusChannel = null;
 
 // DOM Container
 const gridContainer = document.getElementById("grid");
@@ -237,6 +245,8 @@ function attachCellClickHandler(cellElement, row, col) {
             setActiveWord(targetWord, false);
         } else {
             renderGrid();
+            saveGameState();
+            syncRoomFocus();
         }
     });
 }
@@ -290,12 +300,14 @@ function renderGrid() {
     }
 }
 
-// Start Game
+// Start Game - Local Test
 async function startGame() {
     selectedPuzzleId = puzzleSelect.value;
     currentSession.roomId = null;
 
     unsubscribeFromSharedRoomCells();
+    unsubscribeFromSharedRoomFocus();
+
 
     await loadSelectedPuzzle();
 
@@ -318,8 +330,12 @@ export async function startRoomGame(room) {
     setGameActive(true);
 
     await loadSelectedPuzzle();
+
     await loadSharedRoomCells(room.id);
+    await loadSharedRoomFocus(room.id);
+
     subscribeToSharedRoomCells(room.id);
+    subscribeToSharedRoomFocus(room.id);
 
     startTimer();
     startAutosave();
@@ -391,7 +407,7 @@ function startAutosave() {
     }, 5000);
 }
 
-// Appl Shared Cell State
+// Apply Shared Cell State
 function applySharedCellState(cellState) {
     const row = cellState.row_index;
     const col = cellState.col_index;
@@ -456,6 +472,93 @@ function unsubscribeFromSharedRoomCells() {
     unsubscribeFromCrosswordCellUpdates(crosswordCellsChannel);
     crosswordCellsChannel = null;
 }
+
+function getWordForFocus(row, col, nextDirection) {
+    const acrossMatch = findWordAtCell(row, col, acrossWords);
+    const downMatch = findWordAtCell(row, col, downWords);
+
+    if (nextDirection === "across" && acrossMatch) {
+        return acrossMatch;
+    }
+
+    if (nextDirection === "down" && downMatch) {
+        return downMatch;
+    }
+
+    return acrossMatch || downMatch || null;
+}
+
+// Apply Shared Focus
+function applySharedFocus(focusState) {
+    const row = focusState.row_index;
+    const col = focusState.col_index;
+    const nextDirection = focusState.direction;
+
+    if (row < 0 || row >= SIZE) return;
+    if (col < 0 || col >= SIZE) return;
+    if (grid[row][col].isBlack) return;
+
+    selectedCell = { row, col };
+    direction = nextDirection;
+
+    const targetWord = getWordForFocus(row, col, nextDirection);
+
+    if (targetWord) {
+        setActiveWord(targetWord, false, false);
+        return;
+    }
+
+    activeWord = null;
+    renderClues(acrossWords, downWords, activeWord, setActiveWord);
+    renderGrid();
+    saveGameState();
+}
+
+// Load Shared Room Focus
+async function loadSharedRoomFocus(roomId) {
+    const focusState = await loadCrosswordFocus(roomId);
+
+    if (!focusState) {
+        return;
+    }
+
+    applySharedFocus(focusState);
+}
+
+// Subscribe to Shared Room Focus
+function subscribeToSharedRoomFocus(roomId) {
+    unsubscribeFromSharedRoomFocus();
+
+    crosswordFocusChannel = subscribeToCrosswordFocus(
+        roomId,
+        applySharedFocus
+    );
+}
+
+// Unsubscribe from Shared Room Focus
+function unsubscribeFromSharedRoomFocus() {
+    if (!crosswordFocusChannel) {
+        return;
+    }
+
+    unsubscribeFromCrosswordFocus(crosswordFocusChannel);
+    crosswordFocusChannel = null;
+}
+
+// Sync Room Focus
+async function syncRoomFocus() {
+    if (!currentSession.roomId) {
+        return;
+    }
+
+    await saveCrosswordFocus({
+        roomId: currentSession.roomId,
+        row: selectedCell.row,
+        col: selectedCell.col,
+        direction
+    });
+}
+
 
 // Sync Cell Letter
 async function syncCellLetter({ row, col, letter }) {
@@ -565,6 +668,7 @@ async function finishPuzzle() {
 
     setGameActive(false);
     unsubscribeFromSharedRoomCells();
+    unsubscribeFromSharedRoomFocus();
 
     const completionResult = getCompletionResult();
 
@@ -740,7 +844,9 @@ function returnToWelcomeScreen () {
 
     setGameActive(false);
     currentSession.roomId = null;
+
     unsubscribeFromSharedRoomCells();
+    unsubscribeFromSharedRoomFocus();
 
     if (timerInterval) {
         clearInterval(timerInterval);
@@ -1003,6 +1109,7 @@ setupKeyboardInput({
     setActiveWord,
     saveGameState,
     onCellLetterChange: syncCellLetter,
+    onFocusChange: syncRoomFocus,
     forceEligibleCompletion: forceEligibleCompletionForDev
 });
 
@@ -1016,7 +1123,7 @@ function isInActiveWord(row, col) {
 }
 
 // Set Active Word
-function setActiveWord(word, fromClue = false) {
+function setActiveWord(word, fromClue = false, shouldSyncFocus = true) {
     activeWord = word;
 
     // move selection to first cell of word
@@ -1041,6 +1148,11 @@ function setActiveWord(word, fromClue = false) {
 
     renderClues(acrossWords, downWords, activeWord, setActiveWord);
     renderGrid();
+    saveGameState();
+
+    if (shouldSyncFocus) {
+        syncRoomFocus();
+    }
 }
 
 

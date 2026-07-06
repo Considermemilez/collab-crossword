@@ -20,6 +20,7 @@ export function setupKeyboardInput({
     setActiveWord,
     saveGameState,
     onCellLetterChange,
+    onFocusChange,
     forceEligibleCompletion
 }) {
     function updateActiveWordForCell(row, col) {
@@ -135,6 +136,13 @@ export function setupKeyboardInput({
                 });
             }
 
+            if (
+                next &&
+                typeof onFocusChange === "function"
+            ) {
+                await onFocusChange();
+            }
+
             return;
         }
     
@@ -183,6 +191,10 @@ export function setupKeyboardInput({
                 typeof onCellLetterChange === "function"
             ) {
                 await onCellLetterChange(changedCell);
+            }
+
+            if (typeof onFocusChange === "function") {
+                await onFocusChange();
             }
         }
     });
