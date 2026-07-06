@@ -63,6 +63,19 @@ export function setupKeyboardInput({
             forceEligibleCompletion
         );
         if (devHandled) return;
+
+        // Prevent browser scrolling / navigation during gameplay
+        const browserHandledKeys = [
+            "ArrowRight",
+            "ArrowLeft",
+            "ArrowDown",
+            "ArrowUp",
+            "Backspace"
+        ];
+
+        if (browserHandledKeys.includes(event.key)) {
+            event.preventDefault();
+        }
     
         // prevent typing into black squares
         if (cell.isBlack) return;
