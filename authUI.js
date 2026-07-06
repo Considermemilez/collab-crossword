@@ -5,13 +5,22 @@ import {
     signOut
 } from "./authService.js";
 
+import {
+    getCurrentUserProfile,
+    saveCurrentUserProfile
+} from "./profileService.js"
+
 export function setupAuthUI({
     authStatus,
     authEmailInput,
     authPasswordInput,
     signUpButton,
     signInButton,
-    signOutButton
+    signOutButton,
+    profilePanel,
+    profileDisplayNameInput,
+    profileSaveButton,
+    onDisplayNameAvailable
 }) {
     async function refreshAuthStatus() {
         const user = await getCurrentUser();
@@ -25,6 +34,20 @@ export function setupAuthUI({
             signInButton.classList.add("hidden");
             signOutButton.classList.remove("hidden");
 
+            profilePanel.classList.remove("hidden");
+
+            const profile = await getCurrentUserProfile();
+
+            if (profile) {
+                profileDisplayNameInput.value = profile.display_name;
+
+                if (typeof onDisplayNameAvailable === "function") {
+                    onDisplayNameAvailable(profile.display_name);
+                }
+            } else {
+                profileDisplayNameInput.value = "";
+            }
+
             return;
         }
 
@@ -35,6 +58,9 @@ export function setupAuthUI({
         signUpButton.classList.remove("hidden");
         signInButton.classList.remove("hidden");
         signOutButton.classList.add("hidden");
+
+        profilePanel.classList.add("hidden");
+        profileDisplayNameInput.value = "";
     }
 
     function getAuthInputValues() {
@@ -110,6 +136,25 @@ export function setupAuthUI({
         }
 
         await refreshAuthStatus();
+    });
+
+    profileSaveButton.addEventListener("click", async () => {
+        const savedProfile = await saveCurrentUserProfile(
+            profileDisplayNameInput.value
+        );
+
+        if (!savedProfile) {
+            alert("Could not save display name. Check the console for details.")
+            return;
+        }
+
+        profileDisplayNameInput.value = savedProfile.display_name;
+
+        if (typeof onDisplayNameAvailable === "function") {
+            onDisplayNameAvailable(savedProfile.display_name);
+        }
+        
+        alert("Display name saved.")
     });
 
     refreshAuthStatus();
