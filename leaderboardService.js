@@ -13,7 +13,7 @@ function formatSolveTime(solveTimeMs) {
 export async function getLeaderboard(puzzleId, mode) {
     const { data, error} = await supabaseClient
         .from("leaderboard_entries")
-        .select("player_name, solve_time_ms")
+        .select("id, player_name, solve_time_ms")
         .eq("puzzle_id", puzzleId)
         .eq("mode", mode)
         .eq("used_reveal", false)
@@ -26,6 +26,7 @@ export async function getLeaderboard(puzzleId, mode) {
     }
 
     return data.map(entry => ({
+        id: entry.id,
         player: entry.player_name,
         time: formatSolveTime(entry.solve_time_ms)
     }));
@@ -40,10 +41,10 @@ export async function saveLeaderboardEntry({
     usedReveal
 }) {
     if (usedReveal) {
-        return;
+        return null;
     }
 
-    const { error } = await supabaseClient
+    const { data, error } = await supabaseClient
     .from("leaderboard_entries")
     .insert({
         puzzle_id: puzzleId,
@@ -51,11 +52,16 @@ export async function saveLeaderboardEntry({
         player_name: playerName,
         solve_time_ms: solveTimeMs,
         used_reveal: usedReveal
-    });
+    })
+    .select("id")
+    .single();
 
     if (error) {
-        console.error("Failed to save leaderboard entry:", error);
+        console.error("Failed to save leaderboard entry:", error)
+        return null;
     }
+
+    return data;
 }
 
 

@@ -376,7 +376,7 @@ function getCompletionResult() {
 }
 
 // Render Leaderboard
-function renderLeaderboard(leaderboard = []) {
+function renderLeaderboard(leaderboard = [], highlightedEntryId = null) {
     completionLeaderboard.innerHTML = "";
 
     if (leaderboard.length === 0) {
@@ -387,6 +387,10 @@ function renderLeaderboard(leaderboard = []) {
     leaderboard.forEach((entry, index) => {
         const row = document.createElement("div");
         row.classList.add("leaderboard-row");
+
+        if (entry.id === highlightedEntryId) {
+            row.classList.add("leaderboard-row-current");
+        }
 
         const rank = document.createElement("span");
         rank.classList.add("leaderboard-rank");
@@ -421,7 +425,10 @@ function showCompletionModal(completionResult) {
             "Leaderboard eligible: No - Reveal was used :(";
     }
 
-    renderLeaderboard(completionResult.leaderboard);
+    renderLeaderboard(
+        completionResult.leaderboard,
+        completionResult.savedLeaderboardEntryId
+    );
 
     completionModal.classList.remove("hidden");
 }
@@ -436,8 +443,10 @@ async function finishPuzzle() {
 
     const completionResult = getCompletionResult();
 
+    let savedLeaderboardEntry = null;
+
     if (completionResult.leaderboardEligible) {
-        await saveLeaderboardEntry({
+        savedLeaderboardEntry = await saveLeaderboardEntry({
             puzzleId: completionResult.puzzleId,
             mode: completionResult.mode,
             playerName: completionResult.playerName,
@@ -445,6 +454,9 @@ async function finishPuzzle() {
             usedReveal: completionResult.usedReveal
         });
     }
+
+    completionResult.savedLeaderboardEntryId = 
+        savedLeaderboardEntry?.id || null;
 
     completionResult.leaderboard = await getLeaderboard(
         completionResult.puzzleId,

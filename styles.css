@@ -138,6 +138,14 @@ body {
     text-align: right;
 }
 
+.leaderboard-row-current {
+    background-color: #fff3cd;
+    border-radius: 4px;
+    padding-left: 6px;
+    padding-right: 6px;
+    font-weight: bold;
+}
+
 #clues {
     display: flex;
     gap: 40px;
