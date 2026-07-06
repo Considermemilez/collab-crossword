@@ -284,3 +284,65 @@ export async function joinRoom(roomId) {
 
     return data;
 }
+
+export async function getCrosswordRoomDetails(roomId) {
+    const currentUser = await getCurrentUser();
+
+    const { data, error } = await supabaseClient
+        .from("game_rooms")
+        .select(`
+            id,
+            room_name,
+            visibility,
+            status,
+            max_players,
+            created_at,
+            created_by,
+            game_players (
+                id,
+                user_id,
+                display_name,
+                player_order
+            ),
+            crossword_room_settings (
+                puzzle_id,
+                mode
+            )
+        `)
+        .eq("id", roomId)
+        .single();
+
+    if (error) {
+        console.error("Error loading crossword room details:", error);
+        return null;
+    }
+
+    const players = [...data.game_players].sort(
+        (a, b) => a.player_order - b.player_order
+    );
+
+    const crosswordSettings = Array.isArray(data.crossword_room_settings)
+        ? data.crossword_room_settings[0]
+        : data.crossword_room_settings;
+
+    return {
+        id: data.id,
+        roomName: data.room_name,
+        visibility: data.visibility,
+        status: data.status,
+        maxPlayers: data.max_players,
+        puzzleId: crosswordSettings?.puzzle_id || "Unknown",
+        mode: crosswordSettings?.mode || "Unknown",
+        createdBy: data.created_by,
+        players: players.map(player => ({
+            id: player.id,
+            userId: player.user_id,
+            displayName: player.display_name,
+            playerOrder: player.player_order
+        })),
+        isCurrentUserInRoom: players.some(player =>
+            player.user_id === currentUser?.id
+        ),
+        isCurrentUserCreator: data.created_by === currentUser?.id
+    };
+}

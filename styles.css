@@ -370,3 +370,16 @@ button:disabled {
     cursor: pointer;
     font-weight: bold;
 }
+
+#room-lobby-screen {
+    margin-top: 20px;
+}
+
+#room-lobby-details {
+    margin: 12px 0;
+    font-size: 14px;
+}
+
+.room-lobby-player {
+    padding: 6px 0;
+}

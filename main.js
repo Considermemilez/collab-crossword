@@ -3,6 +3,7 @@ import { setupAuthUI } from "./authUI.js";
 import { 
     createCrosswordRoom,
     getCrosswordRoomSummaries,
+    getCrosswordRoomDetails,
     joinRoom
 } from "./roomService.js";
 import "./script.js";
@@ -22,6 +23,13 @@ const selectCrosswordButton = document.getElementById("select-crossword-btn");
 const gameSelectAccountButton = document.getElementById("game-select-account-btn");
 const crosswordLobbyAccountButton = document.getElementById("crossword-lobby-account-btn");
 const backToGamesButton = document.getElementById("back-to-games-btn");
+const roomLobbyScreen = document.getElementById("room-lobby-screen");
+const roomLobbyTitle = document.getElementById("room-lobby-title");
+const roomLobbyBackButton = document.getElementById("room-lobby-back-btn");
+const roomLobbyDetails = document.getElementById("room-lobby-details");
+const roomLobbyPlayers = document.getElementById("room-lobby-players");
+const roomLobbyStartButton = document.getElementById("room-lobby-start-btn");
+const roomLobbyStatus = document.getElementById("room-lobby-status");
 
 
 // Show Platform Screen
@@ -29,6 +37,7 @@ function showPlatformScreen(screenName) {
     authScreen.classList.add("hidden");
     gameSelectScreen.classList.add("hidden");
     welcomeScreen.classList.add("hidden");
+    roomLobbyScreen.classList.add("hidden");
 
     if (screenName === "auth") {
         authScreen.classList.remove("hidden");
@@ -36,6 +45,10 @@ function showPlatformScreen(screenName) {
 
     if (screenName === "game-select") {
         gameSelectScreen.classList.remove("hidden");
+    }
+
+    if (screenName === "room-lobby") {
+        roomLobbyScreen.classList.remove("hidden");
     }
 
     if (screenName === "crossword-lobby") {
@@ -116,8 +129,12 @@ function renderRoomList(rooms) {
         joinButton.classList.add("join-room-btn");
 
         if (room.isCurrentUserInRoom) {
-            joinButton.textContent = "Joined";
-            joinButton.disabled = true;
+            joinButton.textContent = "Enter Room";
+            joinButton.disabled = false;
+
+            joinButton.addEventListener("click", async () => {
+                await openRoomLobby(room.id);
+            });
         } else if (room.playerCount >= room.maxPlayers) {
             joinButton.textContent = "Room Full";
             joinButton.disabled = true;
@@ -129,9 +146,9 @@ function renderRoomList(rooms) {
         joinButton.addEventListener("click", async () => {
             createRoomStatus.textContent = `Joining room: ${room.roomName}...`;
 
-            const joinedPlayer = await joinRoom(room.id);
+            const joinedRoom = await joinRoom(room.id);
 
-            if (!joinedPlayer) {
+            if (!joinedRoom) {
                 createRoomStatus.textContent = "Could not join room. Check the console.";
                 return;
             }
@@ -148,6 +165,53 @@ function renderRoomList(rooms) {
 
         roomList.appendChild(row);
     });
+}
+
+// Render Room Lobby
+function renderRoomLobby(room) {
+    roomLobbyTitle.textContent = room.roomName;
+
+    roomLobbyDetails.textContent =
+        `${room.visibility} • ${room.status} • ${room.puzzleId} • ${room.mode}`;
+
+    roomLobbyPlayers.innerHTML = "";
+
+    room.players.forEach(player => {
+        const playerRow = document.createElement("div");
+        playerRow.classList.add("room-lobby-player");
+
+        playerRow.textContent =
+            `P${player.playerOrder}: ${player.displayName}`;
+
+        roomLobbyPlayers.appendChild(playerRow);
+    });
+
+    if (room.isCurrentUserCreator) {
+        roomLobbyStartButton.textContent = "Start Game";
+    } else {
+        roomLobbyStartButton.textContent = "Waiting for host";
+    }
+
+    roomLobbyStartButton.disabled = true;
+    roomLobbyStatus.textContent = "Room lobby created. Shared game start comes next.";
+}
+
+// Open Room lobby
+async function openRoomLobby(roomId) {
+    const room = await getCrosswordRoomDetails(roomId);
+
+    if (!room) {
+        roomLobbyStatus.textContent = "Could not load room.";
+        return;
+    }
+
+    if (!room.isCurrentUserInRoom) {
+        roomLobbyStatus.textContent = "Join this room before entering.";
+        return;
+    }
+
+    renderRoomLobby(room);
+    showPlatformScreen("room-lobby");
 }
 
 // Refresh Room List
@@ -224,6 +288,12 @@ gameSelectAccountButton.addEventListener("click", () => {
 // Crossword Lobby Account Button Listener
 crosswordLobbyAccountButton.addEventListener("click", () => {
     showPlatformScreen("auth");
+});
+
+// Lobby Back Button Listener
+roomLobbyBackButton.addEventListener("click", async () => {
+    showPlatformScreen("crossword-lobby");
+    await refreshRoomList();
 });
 
 
