@@ -148,6 +148,8 @@ export async function createCrosswordRoom({
 }
 
 export async function getCrosswordRoomSummaries() {
+    const currentUser = await getCurrentUser();
+
     const { data, error } = await supabaseClient
         .from("game_rooms")
         .select(`
@@ -158,7 +160,10 @@ export async function getCrosswordRoomSummaries() {
             max_players,
             created_at,
             game_players (
-                id
+                id,
+                user_id,
+                display_name,
+                player_order
             ),
             crossword_room_settings (
                 puzzle_id,
@@ -174,16 +179,36 @@ export async function getCrosswordRoomSummaries() {
         return [];
     }
 
-    return data.map(room => ({
-        id: room.id,
-        roomName: room.room_name,
-        visibility: room.visibility,
-        status: room.status,
-        playerCount: room.game_players.length,
-        maxPlayers: room.max_players,
-        puzzleId: room.crossword_room_settings?.[0]?.puzzle_id || "Unknown",
-        mode: room.crossword_room_settings?.[0]?.mode || "Unknown"
-    }));
+    return data.map(room => {
+
+        const players = [...room.game_players].sort(
+            (a, b) => a.player_order - b.player_order
+        );
+
+        const crosswordSettings = Array.isArray(room.crossword_room_settings)
+            ? room.crossword_room_settings[0]
+            : room.crossword_room_settings;
+
+        return {
+            id: room.id,
+            roomName: room.room_name,
+            visibility: room.visibility,
+            status: room.status,
+            playerCount: players.length,
+            maxPlayers: room.max_players,
+            puzzleId: crosswordSettings?.puzzle_id || "Unknown",
+            mode: crosswordSettings?.mode || "Unknown",
+            players: players.map(player => ({
+                id: player.id,
+                userId: player.user_id,
+                displayName: player.display_name,
+                playerOrder: player.player_order
+            })),
+            isCurrentUserInRoom: players.some(player =>
+                player.user_id === currentUser?.id
+            )
+        };
+    });
 }
 
 export async function getRoomById(roomId) {

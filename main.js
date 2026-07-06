@@ -108,11 +108,32 @@ function renderRoomList(rooms) {
         details.textContent =
             `${room.visibility} • ${room.playerCount}/${room.maxPlayers} players • ${room.puzzleId} • ${room.mode}`;
 
+        const players = document.createElement("div");
+        players.classList.add("room-players");
+
+        if (room.players.length === 0) {
+            players.textContent = "Players: none";
+        } else {
+            const playerNames = room.players
+                .map(player => `P${player.playerOrder}: ${player.displayName}`)
+                .join(" • ");
+
+            players.textContent = `Players: ${playerNames}`;
+        }
+
         const joinButton = document.createElement("button");
-        joinButton.textContent = "Join Room";
         joinButton.classList.add("join-room-btn");
 
-        joinButton.disabled = room.playerCount >= room.maxPlayers;
+        if (room.isCurrentUserInRoom) {
+            joinButton.textContent = "Joined";
+            joinButton.disabled = true;
+        } else if (room.playerCount >= room.maxPlayers) {
+            joinButton.textContent = "Room Full";
+            joinButton.disabled = true;
+        } else {
+            joinButton.textContent = "Join Room";
+            joinButton.disabled = false;
+        }
 
         joinButton.addEventListener("click", async () => {
             createRoomStatus.textContent = `Joining room: ${room.roomName}...`;
@@ -131,6 +152,7 @@ function renderRoomList(rooms) {
 
         row.appendChild(title);
         row.appendChild(details);
+        row.appendChild(players);
         row.appendChild(joinButton);
 
         roomList.appendChild(row);
