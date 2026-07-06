@@ -13,6 +13,32 @@
     <div id="welcome-screen">
         <h2>Start a Crossword</h2>
 
+        <div id="auth-panel">
+            <h3>Account</h3>
+
+            <p id="auth-status">Checking account...</p>
+
+            <input
+                id="auth-email"
+                type="email"
+                placeholder="Email"
+                autocomplete="email"
+            />
+
+            <input
+                id="auth-password"
+                type="password"
+                placeholder="Password"
+                autocomplete="current-password"
+                />
+
+            <div id="auth-actions">
+                <button id="auth-sign-up-btn">Sign Up</button>
+                <button id="auth-sign-in-btn">Sign In</button>
+                <button id="auth-sign-out-btn">Sign Out</button>
+            </div>    
+        </div>
+
         <div id="resume-game-panel" class="hidden">
             <p>You have an unfinished puzzle.</p>
 

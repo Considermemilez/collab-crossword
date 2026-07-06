@@ -209,3 +209,31 @@ body {
 #completion-leaderboard {
     margin-top: 12px;
 }
+
+#auth-panel {
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    max-width: 320px;
+}
+
+#auth-panel h3 {
+    margin-top: 0;
+}
+
+#auth-status {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#auth-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+#auth-actions button {
+    padding: 6px 12px;
+    cursor: pointer;
+}
