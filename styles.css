@@ -359,3 +359,14 @@ button:disabled {
     padding: 8px 12px;
     cursor: pointer;
 }
+
+#local-test-panel {
+    margin-top: 20px;
+    padding: 12px;
+    border: 1px solid #ccc;
+}
+
+#local-test-panel summary {
+    cursor: pointer;
+    font-weight: bold;
+}

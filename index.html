@@ -63,88 +63,97 @@
         </button>
     </div>
 
-    <div id="welcome-screen" class="'hidden">
-        <h2>Start a Crossword</h2>
+    <div id="welcome-screen" class="hidden">
+        <h2>Crossword Lobbies</h2>
 
         <button id="crossword-lobby-account-btn" class="secondary-button">
             Account / Sign Out
         </button>
 
-        <div id="resume-game-panel" class="hidden">
-            <p>You have an unfinished puzzle.</p>
-
-            <button id="resume-game-btn">
-                Resume
-            </button>
-
-            <button id="discard-saved-game-btn">
-                Start New Game
-            </button>
-        </div>
-
-        <label for="player-one-name">Your first name:</label>
-        <input id="player-one-name" type="text" placeholder="Gregg" />
-
-        <div>
-            <label>
-                <input type="radio" name="play-mode" value="solo" checked />
-                Solo
-            </label>
-
-            <label>
-                <input type="radio" name="play-mode" value="pair" />
-                Pair
-            </label>
-        </div>
-
-        <label for="puzzle-select">Puzzle:</label>
-
-        <select id="puzzle-select"></select>
-
-        <div id="player-two-section" class="hidden">
-            <label for="player-two-name">Partners first name:</label>
-            <input id="player-two-name" type="text" placeholder="Omi" />
-        </div>
+        <button id="back-to-games-btn" class="secondary-button">
+            Back to Game Selection
+        </button>
 
         <div id="create-room-panel">
-            <h3>Create Crossword Room</h3>
+                <h3>Create Crossword Room</h3>
 
-            <label for="room-name-input">Room name:</label>
-            <input 
-                id="room-name-input" 
-                type="text" 
-                placeholder="Gregg's Room" 
-            />
+                <label for="room-name-input">Room name:</label>
+                <input 
+                    id="room-name-input" 
+                    type="text" 
+                    placeholder="Gregg's Room" 
+                />
 
-            <label for="room-visibility-select">Visibility:</label>
-            <select id="room-visibility-select">
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-            </select>
+                <label for="room-visibility-select">Visibility:</label>
+                <select id="room-visibility-select">
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
 
-            <button id="create-room-btn">
-                Create Room
-            </button>
+                <button id="create-room-btn">
+                    Create Room
+                </button>
 
-            <p id="create-room-status"></p>
-        </div>
-
-        <div id="room-list-panel">
-            <h3>Available Crossword Rooms</h3>
-
-            <button id="refresh-rooms-btn">
-                Refresh Rooms
-            </button>
-
-            <div id="room-list">
-                No rooms loaded yet.
+                <p id="create-room-status"></p>
             </div>
-        </div>
 
+            <div id="room-list-panel">
+                <h3>Available Crossword Rooms</h3>
+
+                <button id="refresh-rooms-btn">
+                    Refresh Rooms
+                </button>
+
+                <div id="room-list">
+                    No rooms loaded yet.
+                </div>
+            </div>
+
+
+        <details id="local-test-panel">
+            <summary>Developer: Local Test Game</summary>
         
 
-        <button id="start-game-btn" disabled>
-            Sign in to Start Game</button>
+            <div id="resume-game-panel" class="hidden">
+                <p>You have an unfinished puzzle.</p>
+
+                <button id="resume-game-btn">
+                    Resume
+                </button>
+
+                <button id="discard-saved-game-btn">
+                    Start New Game
+                </button>
+            </div>
+
+            <label for="player-one-name">Your first name:</label>
+            <input id="player-one-name" type="text" placeholder="Gregg" />
+
+            <div>
+                <label>
+                    <input type="radio" name="play-mode" value="solo" checked />
+                    Solo
+                </label>
+
+                <label>
+                    <input type="radio" name="play-mode" value="pair" />
+                    Pair
+                </label>
+            </div>
+
+            <label for="puzzle-select">Puzzle:</label>
+
+            <select id="puzzle-select"></select>
+
+            <div id="player-two-section" class="hidden">
+                <label for="player-two-name">Partners first name:</label>
+                <input id="player-two-name" type="text" placeholder="Omi" />
+            </div>
+
+            <button id="start-game-btn" disabled>
+                Sign in to Start Game
+            </button>
+        </details>
     </div>
 
     <div id="game-screen" class="hidden">

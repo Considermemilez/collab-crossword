@@ -21,6 +21,7 @@ const welcomeScreen = document.getElementById("welcome-screen");
 const selectCrosswordButton = document.getElementById("select-crossword-btn");
 const gameSelectAccountButton = document.getElementById("game-select-account-btn");
 const crosswordLobbyAccountButton = document.getElementById("crossword-lobby-account-btn");
+const backToGamesButton = document.getElementById("back-to-games-btn");
 
 
 // Show Platform Screen
@@ -186,6 +187,12 @@ selectCrosswordButton.addEventListener("click", async () => {
     await refreshRoomList();
 });
 
+// Back To Games Button
+backToGamesButton.addEventListener("click", async () => {
+    showPlatformScreen("crossword-lobby");
+    await refreshRoomList();
+});
+
 
 // Create Room Button Listener
 createRoomButton.addEventListener("click", async () => {
@@ -218,6 +225,7 @@ gameSelectAccountButton.addEventListener("click", () => {
 crosswordLobbyAccountButton.addEventListener("click", () => {
     showPlatformScreen("auth");
 });
+
 
 
 // Refresh Rooms Button listener
