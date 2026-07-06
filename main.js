@@ -1,6 +1,8 @@
 import "./supabaseClient.js";
 import { setupAuthUI } from "./authUI.js";
+import { createCrosswordRoom } from "./roomService.js";
 import "./script.js";
+
 
 function updateStartGameAuthgate({ user, profile }) {
     const startGameButton = document.getElementById("start-game-btn");
@@ -46,4 +48,32 @@ setupAuthUI({
     },
     onAuthStateChange: updateStartGameAuthgate
 });
+
+const roomNameInput = document.getElementById("room-name-input");
+const roomVisibilitySelect = document.getElementById("room-visibility-select");
+const createRoomButton = document.getElementById("create-room-btn");
+const createRoomStatus = document.getElementById("create-room-status");
+const puzzleSelect = document.getElementById("puzzle-select");
+
+createRoomButton.addEventListener("click", async () => {
+    createRoomStatus.textContent = "Creating room...";
+
+    const room = await createCrosswordRoom({
+        roomName: roomNameInput.value,
+        visibility: roomVisibilitySelect.value,
+        puzzleId: puzzleSelect.value,
+        mode: "pair"
+    });
+
+    if (!room) {
+        createRoomStatus.textContent = "Could not create room. Check the console.";
+        return;
+    }
+
+    createRoomStatus.textContent = `Created room: ${room.room_name}`;
+    roomNameInput.value = "";
+});
+
+
+
 

@@ -256,6 +256,38 @@ body {
     cursor: pointer;
 }
 
+#create-room-panel {
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    max-width: 320px;
+}
+
+#create-room-panel h3 {
+    margin-top: 0;
+}
+
+#create-room-panel label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+#create-room-panel input,
+#create-room-panel select {
+    margin-top: 4px;
+    margin-bottom: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#create-room-status {
+    font-size: 14px;
+    font-weight: bold;
+}
+
 button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
