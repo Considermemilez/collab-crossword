@@ -20,7 +20,8 @@ export function setupAuthUI({
     profilePanel,
     profileDisplayNameInput,
     profileSaveButton,
-    onDisplayNameAvailable
+    onDisplayNameAvailable,
+    onAuthStateChange
 }) {
     async function refreshAuthStatus() {
         const user = await getCurrentUser();
@@ -48,6 +49,13 @@ export function setupAuthUI({
                 profileDisplayNameInput.value = "";
             }
 
+            if (typeof onAuthStateChange === "function") {
+                onAuthStateChange({
+                    user, 
+                    profile
+                });
+            }
+
             return;
         }
 
@@ -61,6 +69,13 @@ export function setupAuthUI({
 
         profilePanel.classList.add("hidden");
         profileDisplayNameInput.value = "";
+
+        if (typeof onAuthStateChange === "function") {
+            onAuthStateChange({
+                user: null, 
+                profile: null
+            });
+        }
     }
 
     function getAuthInputValues() {
@@ -153,7 +168,16 @@ export function setupAuthUI({
         if (typeof onDisplayNameAvailable === "function") {
             onDisplayNameAvailable(savedProfile.display_name);
         }
-        
+
+        if (typeof onAuthStateChange ==="function") {
+            const user = await getCurrentUser();
+
+            onAuthStateChange({
+                user,
+                profile: savedProfile
+            });
+        }
+
         alert("Display name saved.")
     });
 
