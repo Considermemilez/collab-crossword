@@ -83,3 +83,18 @@ delete from leaderboard_entries
 where used_reveal = true;
 
 Use delete queries carefully. Prefer filtering by player_name, puzzle_id, and mode when possible.
+
+Authentication and Profiles
+---------------------------
+
+Gameplay requires a signed-in user.
+
+Users must have a profile display name before starting a game.
+
+The profile table is platform-level, not crossword-specific.
+
+The player name field is currently prefilled from the profile display name and acts as a temporary bridge to the existing session system.
+
+Guest play is intentionally not supported.
+
+For local development, email confirmation may be disabled. In production, email confirmation should be enabled and redirect URLs should be configured.
