@@ -103,6 +103,7 @@ const revealPuzzleButton = document.getElementById("reveal-puzzle-btn");
 
 const welcomeScreen = document.getElementById("welcome-screen");
 const gameScreen = document.getElementById("game-screen");
+const roomLobbyScreen = document.getElementById("room-lobby-screen");
 const startGameButton = document.getElementById("start-game-btn");
 const playerOneInput = document.getElementById("player-one-name");
 const playerTwoInput = document.getElementById("player-two-name");
@@ -289,6 +290,35 @@ async function startGame() {
 
     startTimer();
     startAutosave();
+}
+
+// Export Start Game
+export async function startRoomGame(room) {
+    selectedPuzzleId = room.puzzleId;
+
+    currentSession.players = room.players.map(player => player.displayName);
+    currentSession.mode = room.mode;
+    currentSession.startTime = Date.now();
+    currentSession.endTime = null;
+    currentSession.completed = false;
+    currentSession.usedReveal = false;
+
+    setGameActive(true);
+
+    await loadSelectedPuzzle();
+
+    startTimer();
+    startAutosave();
+
+    welcomeScreen.classList.add("hidden");
+
+    if (roomLobbyScreen) {
+        roomLobbyScreen.classList.add("hidden");
+    }
+
+    gameScreen.classList.remove("hidden");
+
+    console.log("Room game started.", currentSession);
 }
 
 // Update Game Timer

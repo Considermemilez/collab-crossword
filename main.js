@@ -7,7 +7,7 @@ import {
     joinRoom,
     startCrosswordRoom
 } from "./roomService.js";
-import "./script.js";
+import { startRoomGame } from "./script.js";
 
 // DOM References
 const roomNameInput = document.getElementById("room-name-input");
@@ -32,10 +32,13 @@ const roomLobbyPlayers = document.getElementById("room-lobby-players");
 const roomLobbyStartButton = document.getElementById("room-lobby-start-btn");
 const roomLobbyStatus = document.getElementById("room-lobby-status");
 
+
 // State
 let currentRoomId = null;
 let roomRealtimeChannel = null;
 let roomLobbyRefreshInterval = null;
+let currentRoom = null;
+let roomGameStarted = false;
 
 
 // Show Platform Screen
@@ -197,7 +200,7 @@ function renderRoomLobby(room) {
     if (room.status === "active") {
         roomLobbyStartButton.textContent = "Game Started";
         roomLobbyStartButton.disabled = true;
-        roomLobbyStatus.textContent = "Room is active. Shared crossword loading comes next.";
+        roomLobbyStatus.textContent = "Room is active. Loading crossword...";
     } else if (room.isCurrentUserCreator) {
         roomLobbyStartButton.textContent = "Start Game";
         roomLobbyStartButton.disabled = false;
@@ -212,10 +215,15 @@ function renderRoomLobby(room) {
 // Open Room lobby
 async function openRoomLobby(roomId) {
     currentRoomId = roomId;
+    roomGameStarted = false;
 
     const refreshed = await refreshRoomLobbyView();
 
     if (!refreshed) {
+        return;
+    }
+
+    if (roomGameStarted) {
         return;
     }
 
@@ -242,8 +250,29 @@ async function refreshRoomLobbyView() {
         return false;
     }
 
+    currentRoom = room;
+
     renderRoomLobby(room);
+
+    if (room.status === "active") {
+        await startActiveRoomGame(room);
+    }
+
     return true;
+}
+
+// Start Active Room Game
+async function startActiveRoomGame(room) {
+    if (roomGameStarted) {
+        return;
+    }
+
+    roomGameStarted = true;
+
+    unsubscribeFromRoomUpdates();
+    stopRoomLobbyPolling();
+
+    await startRoomGame(room);
 }
 
 // Stop Room Lobby Polling
@@ -424,10 +453,15 @@ roomLobbyBackButton.addEventListener("click", async () => {
     await refreshRoomList();
 });
 
-// Lobby Start Button Listener
+// Room Lobby Start Button Listener
 roomLobbyStartButton.addEventListener("click", async () => {
     if (!currentRoomId) {
         roomLobbyStatus.textContent = "No room selected.";
+        return;
+    }
+
+    if (currentRoom?.status === "active") {
+        await startActiveRoomGame(currentRoom);
         return;
     }
 
