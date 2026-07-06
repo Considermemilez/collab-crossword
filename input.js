@@ -19,6 +19,7 @@ export function setupKeyboardInput({
     getDownWords,
     setActiveWord,
     saveGameState,
+    onCellLetterChange,
     forceEligibleCompletion
 }) {
     function updateActiveWordForCell(row, col) {
@@ -125,11 +126,22 @@ export function setupKeyboardInput({
     
             renderGrid();
             saveGameState();
+
+            if (typeof onCellLetterChange === "function") {
+                await onCellLetterChange({
+                    row,
+                    col,
+                    letter: cell.letter
+                });
+            }
+
             return;
         }
     
         // backspace
         if (event.key === "Backspace") {
+            let changedCell = null;
+
             if (cell.letter === "") {
                 // move back if empty
                 const previous = getPreviousCell(row, col);
@@ -143,16 +155,35 @@ export function setupKeyboardInput({
                         previousCell.letter = "";
                         previousCell.isWrong = false;
                         previousCell.isCorrect = false;
+
+                        changedCell = {
+                            row: previous.row,
+                            col: previous.col,
+                            letter: ""
+                        };
                     }
                 }
             } else {
                 cell.letter = "";
                 cell.isWrong = false;
                 cell.isCorrect = false;
+
+                changedCell = {
+                    row,
+                    col,
+                    letter: ""
+                };
             }
     
             renderGrid();
             saveGameState();
+
+            if (
+                changedCell &&
+                typeof onCellLetterChange === "function"
+            ) {
+                await onCellLetterChange(changedCell);
+            }
         }
     });
 }

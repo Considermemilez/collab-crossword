@@ -30,6 +30,13 @@ import {
     saveLeaderboardEntry
  } from "./leaderboardService.js";
 
+import {
+    saveCrosswordCell,
+    loadCrosswordCells,
+    subscribeToCrosswordCellUpdates,
+    unsubscribeFromCrosswordCellUpdates
+} from "./crosswordSyncService.js"; 
+
 import { 
     validateWord, 
     isPuzzleComplete,
@@ -91,6 +98,7 @@ let activeWord = null;
 let timerInterval = null;
 let autosaveInterval = null;
 let selectedPuzzleId = "";
+let crosswordCellsChannel = null;
 
 // DOM Container
 const gridContainer = document.getElementById("grid");
@@ -285,6 +293,9 @@ function renderGrid() {
 // Start Game
 async function startGame() {
     selectedPuzzleId = puzzleSelect.value;
+    currentSession.roomId = null;
+
+    unsubscribeFromSharedRoomCells();
 
     await loadSelectedPuzzle();
 
@@ -296,6 +307,7 @@ async function startGame() {
 export async function startRoomGame(room) {
     selectedPuzzleId = room.puzzleId;
 
+    currentSession.roomId = room.id;
     currentSession.players = room.players.map(player => player.displayName);
     currentSession.mode = room.mode;
     currentSession.startTime = Date.now();
@@ -306,6 +318,8 @@ export async function startRoomGame(room) {
     setGameActive(true);
 
     await loadSelectedPuzzle();
+    await loadSharedRoomCells(room.id);
+    subscribeToSharedRoomCells(room.id);
 
     startTimer();
     startAutosave();
@@ -375,6 +389,86 @@ function startAutosave() {
 
         saveGameState();
     }, 5000);
+}
+
+// Appl Shared Cell State
+function applySharedCellState(cellState) {
+    const row = cellState.row_index;
+    const col = cellState.col_index;
+
+    if (row < 0 || row >= SIZE) return;
+    if (col < 0 || col >= SIZE) return;
+
+    const cell = grid[row][col];
+
+    if (cell.isBlack) return;
+
+    const nextLetter = cellState.letter || "";
+
+    if (cell.letter === nextLetter) {
+        return;
+    }
+
+    cell.letter = nextLetter;
+
+    // For this quest, correctness/locking stays local.
+    // If a shared letter changes, clear local validation styling.
+    cell.isCorrect = false;
+    cell.isWrong = false;
+    cell.isLocked = false;
+}
+
+// Load Shared Room Cells
+async function loadSharedRoomCells(roomId) {
+    const cellStates = await loadCrosswordCells(roomId);
+
+    cellStates.forEach(cellState => {
+        applySharedCellState(cellState);
+    });
+
+    renderGrid();
+    saveGameState();
+}
+
+// Handle Shared Cell Update
+function handleSharedCellUpdate(cellState) {
+    applySharedCellState(cellState);
+    renderGrid();
+    saveGameState();
+}
+
+// Subscribe to Shared Room Cells
+function subscribeToSharedRoomCells(roomId) {
+    unsubscribeFromSharedRoomCells();
+
+    crosswordCellsChannel = subscribeToCrosswordCellUpdates(
+        roomId,
+        handleSharedCellUpdate
+    );
+}
+
+// Unsubscribe from Shared Room Cells
+function unsubscribeFromSharedRoomCells() {
+    if (!crosswordCellsChannel) {
+        return;
+    }
+
+    unsubscribeFromCrosswordCellUpdates(crosswordCellsChannel);
+    crosswordCellsChannel = null;
+}
+
+// Sync Cell Letter
+async function syncCellLetter({ row, col, letter }) {
+    if (!currentSession.roomId) {
+        return;
+    }
+
+    await saveCrosswordCell({
+        roomId: currentSession.roomId,
+        row,
+        col,
+        letter
+    });
 }
 
 // Get Completion results
@@ -470,6 +564,7 @@ async function finishPuzzle() {
     stopTimer();
 
     setGameActive(false);
+    unsubscribeFromSharedRoomCells();
 
     const completionResult = getCompletionResult();
 
@@ -529,6 +624,7 @@ function getGameState() {
     const elapsedMs = endTime - currentSession.startTime;
 
     return {
+        roomId: currentSession.roomId,
         puzzleId: currentSession.puzzleId,
         players: currentSession.players,
         mode: currentSession.mode,
@@ -546,7 +642,7 @@ function getGameState() {
 // Restore Game State
 function restoreGameState(savedGame) {
 
-        
+    currentSession.roomId = savedGame.roomId || null;
     currentSession.players = [...savedGame.players];
     currentSession.mode = savedGame.mode;
     currentSession.puzzleId = savedGame.puzzleId;
@@ -643,6 +739,8 @@ function returnToWelcomeScreen () {
     playerTwoInput.value = "";
 
     setGameActive(false);
+    currentSession.roomId = null;
+    unsubscribeFromSharedRoomCells();
 
     if (timerInterval) {
         clearInterval(timerInterval);
@@ -904,6 +1002,7 @@ setupKeyboardInput({
     getDownWords,
     setActiveWord,
     saveGameState,
+    onCellLetterChange: syncCellLetter,
     forceEligibleCompletion: forceEligibleCompletionForDev
 });
 

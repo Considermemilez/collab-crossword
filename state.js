@@ -7,6 +7,7 @@ export function setCurrentPuzzle(puzzle) {
 }
 
 export let currentSession = {
+    roomId: null,
     players: [],
     mode: "solo",
     puzzleId: null, 
