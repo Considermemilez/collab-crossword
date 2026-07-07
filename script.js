@@ -32,6 +32,7 @@ import {
 
 import {
     saveCrosswordCell,
+    saveCrosswordCells,
     loadCrosswordCells,
     subscribeToCrosswordCellUpdates,
     unsubscribeFromCrosswordCellUpdates
@@ -43,6 +44,13 @@ import {
     subscribeToCrosswordFocus,
     unsubscribeFromCrosswordFocus
 } from "./crosswordFocusService.js";
+
+import {
+    markCrosswordRoomRevealUsed,
+    loadCrosswordRoomGameState,
+    subscribeToCrosswordRoomGameState,
+    unsubscribeFromCrosswordRoomGameState
+} from "./crosswordRoomStateService.js";
 
 import { getCurrentUser } from "./authService.js";
 
@@ -109,6 +117,7 @@ let autosaveInterval = null;
 let selectedPuzzleId = "";
 let crosswordCellsChannel = null;
 let crosswordFocusChannel = null;
+let crosswordRoomGameStateChannel = null;
 let currentUserId = null;
 
 // DOM Container
@@ -311,6 +320,7 @@ async function startGame() {
 
     unsubscribeFromSharedRoomCells();
     unsubscribeFromSharedRoomFocus();
+    unsubscribeFromSharedRoomGameState();
 
 
     await loadSelectedPuzzle();
@@ -340,9 +350,11 @@ export async function startRoomGame(room) {
 
     await loadSharedRoomCells(room.id);
     await loadSharedRoomFocus(room.id);
+    await loadSharedRoomGameState(room.id);
 
     subscribeToSharedRoomCells(room.id);
     subscribeToSharedRoomFocus(room.id);
+    subscribeToSharedRoomGameState(room.id);
 
     startTimer();
     startAutosave();
@@ -427,18 +439,19 @@ function applySharedCellState(cellState) {
     if (cell.isBlack) return;
 
     const nextLetter = cellState.letter || "";
-
-    if (cell.letter === nextLetter) {
-        return;
-    }
+    const isRevealed = Boolean(cellState.is_revealed);
 
     cell.letter = nextLetter;
 
-    // For this quest, correctness/locking stays local.
-    // If a shared letter changes, clear local validation styling.
-    cell.isCorrect = false;
-    cell.isWrong = false;
-    cell.isLocked = false;
+    if (isRevealed) {
+        cell.isCorrect = true;
+        cell.isWrong = false;
+        cell.isLocked = true;
+    } else {
+        cell.isCorrect = false;
+        cell.isWrong = false;
+        cell.isLocked = false;
+    }
 }
 
 // Load Shared Room Cells
@@ -577,7 +590,6 @@ async function syncRoomFocus() {
     });
 }
 
-
 // Sync Cell Letter
 async function syncCellLetter({ row, col, letter }) {
     if (!currentSession.roomId) {
@@ -589,6 +601,121 @@ async function syncCellLetter({ row, col, letter }) {
         row,
         col,
         letter
+    });
+}
+
+// Apply Shared Room Game State 
+function applySharedRoomGameState(roomGameState) {
+    if (!roomGameState) {
+        return;
+    }
+
+    if (roomGameState.used_reveal) {
+        currentSession.usedReveal = true;
+        saveGameState();
+
+        console.log("Shared room state: reveal has been used.");
+    }
+}
+
+// Load Shared Room Game State
+async function loadSharedRoomGameState(roomId) {
+    const roomGameState = await loadCrosswordRoomGameState(roomId);
+
+    if (!roomGameState) {
+        return;
+    }
+
+    applySharedRoomGameState(roomGameState);
+}
+
+// Subscribe to Shared Room Game State
+function subscribeToSharedRoomGameState(roomId) {
+    unsubscribeFromSharedRoomGameState();
+
+    crosswordRoomGameStateChannel = subscribeToCrosswordRoomGameState(
+        roomId,
+        applySharedRoomGameState
+    );
+}
+
+// Unsubscribe from Shared Room Game State
+function unsubscribeFromSharedRoomGameState() {
+    if (!crosswordRoomGameStateChannel) {
+        return;
+    }
+
+    unsubscribeFromCrosswordRoomGameState(crosswordRoomGameStateChannel);
+    crosswordRoomGameStateChannel = null;
+}
+
+// Mark Reveal Used for Room
+async function markRevealUsedForRoom() {
+    currentSession.usedReveal = true;
+    saveGameState();
+
+    if (!currentSession.roomId) {
+        return;
+    }
+
+    await markCrosswordRoomRevealUsed(currentSession.roomId);
+}
+
+// Get Cell Sync Payloads
+function getCellSyncPayload(row, col, isRevealed = false) {
+    return {
+        row,
+        col,
+        letter: grid[row][col].letter,
+        isRevealed
+    };
+}
+
+// get Word Sync Payloads
+function getWordSyncPayloads(word) {
+    if (!word) {
+        return [];
+    }
+
+    return word.cells.map(cell =>
+        getCellSyncPayload(cell.row, cell.col, true)
+    );
+}
+
+// Get Puzzle Sync Payloads
+function getPuzzleSyncPayloads() {
+    const cells = [];
+
+    for (let row = 0; row < SIZE; row++) {
+        for (let col = 0; col < SIZE; col++) {
+            if (grid[row][col].isBlack) {
+                continue;
+            }
+
+            cells.push(
+                getCellSyncPayload(row, col, true)
+            );
+        }
+    }
+
+    return cells;
+}
+
+// Sync Revealed Cells
+async function syncRevealedCells(cells) {
+    if (!currentSession.roomId) {
+        return;
+    }
+
+    if (!Array.isArray(cells) || cells.length === 0) {
+        return;
+    }
+
+    console.log("Syncing revealed cells:", cells);
+
+    await saveCrosswordCells({
+        roomId: currentSession.roomId,
+        cells
     });
 }
 
@@ -687,6 +814,7 @@ async function finishPuzzle() {
     setGameActive(false);
     unsubscribeFromSharedRoomCells();
     unsubscribeFromSharedRoomFocus();
+    unsubscribeFromSharedRoomGameState();
 
     const completionResult = getCompletionResult();
 
@@ -865,6 +993,7 @@ function returnToWelcomeScreen () {
 
     unsubscribeFromSharedRoomCells();
     unsubscribeFromSharedRoomFocus();
+    unsubscribeFromSharedRoomGameState();
 
     if (timerInterval) {
         clearInterval(timerInterval);
@@ -1014,21 +1143,29 @@ revealButton.addEventListener("click", () => {
     revealMenu.classList.toggle("hidden");
 });
 
-// Reveal Letter Listener
-revealLetterButton.addEventListener("click", () => {
+// Reveal Letter Button Listener
+revealLetterButton.addEventListener("click", async () => {
     const { row, col } = selectedCell;
 
-    currentSession.usedReveal = true;
     revealCell(grid, row, col, acrossWords, downWords, renderGrid);
+
+    await markRevealUsedForRoom();
+
+    await syncRevealedCells([
+        getCellSyncPayload(row, col, true)
+    ]);
+
     saveGameState();
 
     revealMenu.classList.add("hidden");
 });
 
 // Reveal Word Listener
-revealWordButton.addEventListener("click", () => {
-
-    currentSession.usedReveal = true;
+revealWordButton.addEventListener("click", async () => {
+    if (!activeWord) {
+        revealMenu.classList.add("hidden");
+        return;
+    }
 
     revealWord(
         grid,
@@ -1038,6 +1175,12 @@ revealWordButton.addEventListener("click", () => {
         renderGrid
     );
 
+    await markRevealUsedForRoom();
+
+    await syncRevealedCells(
+        getWordSyncPayloads(activeWord)
+    );
+
     saveGameState();
 
     revealMenu.classList.add("hidden");
@@ -1045,10 +1188,14 @@ revealWordButton.addEventListener("click", () => {
 
 // Reveal Puzzle Listener
 revealPuzzleButton.addEventListener("click", async () => {
-
-    currentSession.usedReveal = true;
-
     revealPuzzle(grid, acrossWords, downWords, renderGrid);
+
+    await markRevealUsedForRoom();
+
+    await syncRevealedCells(
+        getPuzzleSyncPayloads()
+    );
+
     saveGameState();
 
     revealMenu.classList.add("hidden");

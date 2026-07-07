@@ -6,7 +6,8 @@ export async function saveCrosswordCell({
     roomId,
     row,
     col,
-    letter
+    letter,
+    isRevealed = false
 }) {
     const user = await getCurrentUser();
 
@@ -22,27 +23,88 @@ export async function saveCrosswordCell({
         return null;
     }
 
+    const cellRow = {
+        room_id: roomId,
+        row_index: row,
+        col_indec: col,
+        letter: cleanedLetter,
+        updated_by: user.id,
+        updated_at: new Date().toISOString()
+    };
+
+    if (isRevealed) {
+        cellRow.is_revealed = true;
+    }
+
     const { data, error } = await supabaseClient
         .from("crossword_cell_states")
         .upsert(
+            cellRow,
             {
-                room_id: roomId,
-                row_index: row,
-                col_index: col,
-                letter: cleanedLetter,
-                updated_by: user.id,
-                updated_at: new Date().toISOString()
-            },
-            {
-                onConflict: "room_id,row_index,col_index"
+                onConflict: "room_id,row_index,coll_index"
             }
         )
-        .select("room_id, row_index, col_index, letter, updated_by, updated_at")
+        .select("room_id, row_index, col_index, letter, is_revealed, updated_by, updated_at")
         .single();
 
     if (error) {
         console.error("Failed to sync crossword cell:", error);
         return null;
+    }
+
+    return data;
+}
+
+// Save Crossword Cells
+export async function saveCrosswordCells({
+    roomId,
+    cells
+}) {
+    const user = await getCurrentUser();
+
+    if (!user) {
+        console.error("Cannot sync crossword cells without a signed-in user.");
+        return [];
+    }
+
+    if (!Array.isArray(cells) || cells.length === 0) {
+        return [];
+    }
+
+    const now = new Date().toISOString();
+
+    const rows = cells.map(cell => {
+        const cleanedLetter = (cell.letter || "").trim().toUpperCase();
+
+        const row = {
+            room_id: roomId,
+            row_index: cell.row,
+            col_index: cell.col,
+            letter: cleanedLetter,
+            updated_by: user.id,
+            updated_at: now
+        };
+
+        if (cell.isRevealed) {
+            row.is_revealed = true;
+        }
+
+        return row;
+    });
+
+    const { data, error } = await supabaseClient
+        .from("crossword_cell_states")
+        .upsert(
+            rows,
+            {
+                onConflict: "room_id,row_index,col_index"
+            }
+        )
+        .select("room_id, row_index, col_index, letter, is_revealed, updated_by, updated_at");
+
+    if (error) {
+        console.error("Failed to sync crossword cells:", error);
+        return [];
     }
 
     return data;
