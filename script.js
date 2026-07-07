@@ -47,6 +47,7 @@ import {
 
 import {
     markCrosswordRoomRevealUsed,
+    markCrosswordRoomCompleted,
     loadCrosswordRoomGameState,
     subscribeToCrosswordRoomGameState,
     unsubscribeFromCrosswordRoomGameState
@@ -605,7 +606,7 @@ async function syncCellLetter({ row, col, letter }) {
 }
 
 // Apply Shared Room Game State 
-function applySharedRoomGameState(roomGameState) {
+async function applySharedRoomGameState(roomGameState) {
     if (!roomGameState) {
         return;
     }
@@ -615,6 +616,10 @@ function applySharedRoomGameState(roomGameState) {
         saveGameState();
 
         console.log("Shared room state: reveal has been used.");
+    }
+
+    if (roomGameState.completed) {
+        await handleSharedCompletion(roomGameState);
     }
 }
 
@@ -660,6 +665,64 @@ async function markRevealUsedForRoom() {
 
     await markCrosswordRoomRevealUsed(currentSession.roomId);
 }
+
+// Mark Room Completed for Everyone
+async function markRoomCompletedForEveryone({
+    solveTimeMs,
+    savedLeaderboardEntryId
+}) {
+    if (!currentSession.roomId) {
+        return;
+    }
+
+    await markCrosswordRoomCompleted({
+        roomId: currentSession.roomId,
+        usedReveal: currentSession.usedReveal,
+        solveTimeMs,
+        savedLeaderboardEntryId
+    });
+}
+
+// Handle Shared Completion
+async function handleSharedCompletion(roomGameState) {
+    if (currentSession.completed) {
+        return;
+    }
+
+    currentSession.completed = true;
+    currentSession.usedReveal = Boolean(roomGameState.used_reveal);
+
+    if (roomGameState.solve_time_ms !== null) {
+        currentSession.endTime =
+            currentSession.startTime + Number(roomGameState.solve_time_ms);
+    } else if (roomGameState.completed_at) {
+        currentSession.endTime = new Date(roomGameState.completed_at).getTime();
+    } else {
+        currentSession.endTime = Date.now();
+    }
+
+    stopTimer();
+    setGameActive(false);
+
+    const completionResult = getCompletionResult();
+
+    completionResult.savedLeaderboardEntryId =
+        roomGameState.saved_leaderboard_entry_id || null;
+
+    completionResult.leaderboard = await getLeaderboard(
+        completionResult.puzzleId,
+        completionResult.mode
+    );
+
+    saveGameState();
+
+    showCompletionModal(completionResult);
+
+    unsubscribeFromSharedRoomCells();
+    unsubscribeFromSharedRoomFocus();
+    unsubscribeFromSharedRoomGameState();
+}
+
 
 // Get Cell Sync Payloads
 function getCellSyncPayload(row, col, isRevealed = false) {
@@ -812,9 +875,7 @@ async function finishPuzzle() {
     stopTimer();
 
     setGameActive(false);
-    unsubscribeFromSharedRoomCells();
-    unsubscribeFromSharedRoomFocus();
-    unsubscribeFromSharedRoomGameState();
+    
 
     const completionResult = getCompletionResult();
 
@@ -833,12 +894,21 @@ async function finishPuzzle() {
     completionResult.savedLeaderboardEntryId = 
         savedLeaderboardEntry?.id || null;
 
+    await markRoomCompletedForEveryone({
+        solveTimeMs: completionResult.solveTimeMs,
+        savedLeaderboardEntryId: completionResult.savedLeaderboardEntryId
+    });
+
     completionResult.leaderboard = await getLeaderboard(
         completionResult.puzzleId,
         completionResult.mode
     );
 
     showCompletionModal(completionResult);
+
+    unsubscribeFromSharedRoomCells();
+    unsubscribeFromSharedRoomFocus();
+    unsubscribeFromSharedRoomGameState();
 }
 
 // Force eligible Completion for Dev
