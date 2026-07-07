@@ -1069,6 +1069,10 @@ function returnToWelcomeScreen () {
         clearInterval(timerInterval);
         timerInterval = null;
     }
+
+    document.dispatchEvent(
+        new CustomEvent("crossword:lobby-returned")
+    );
 }
 
 // Build Puzzle

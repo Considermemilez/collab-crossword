@@ -376,6 +376,10 @@ async function refreshRoomList() {
     renderRoomList(rooms);
 }
 
+document.addEventListener("crossword:lobby-returned", async () => {
+    await refreshRoomList();
+});
+
 
 // Setup Auth UI
 setupAuthUI({
