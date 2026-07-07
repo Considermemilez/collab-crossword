@@ -98,3 +98,26 @@ The player name field is currently prefilled from the profile display name and a
 Guest play is intentionally not supported.
 
 For local development, email confirmation may be disabled. In production, email confirmation should be enabled and redirect URLs should be configured.
+
+
+Production Readiness Checklist
+------------------------------
+
+Before deploying:
+
+- Dev shortcuts are disabled in devtools.js.
+- Supabase Auth is enabled.
+- Both test users can sign in.
+- Both test users have profile display names.
+- Pair rooms can be created and joined.
+- Host can start a room.
+- Both players load the same puzzle.
+- Letters sync between players.
+- Shared highlight/focus syncs between players.
+- Reveal Letter syncs and marks the room reveal-used.
+- Reveal Word syncs and marks the room reveal-used.
+- Reveal Puzzle syncs, fills both grids, and marks the room reveal-used.
+- Normal completion shows completion modal for both players.
+- Reveal-used completion is not leaderboard eligible.
+- Eligible completion inserts only one leaderboard row.
+- Returning to the lobby refreshes the room list.
