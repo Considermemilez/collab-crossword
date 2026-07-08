@@ -26,12 +26,27 @@ export function setupKeyboardInput({
 
     const mobileKeyboardInput = document.getElementById("mobile-keyboard-input");
 
+    function resetMobileKeyboardInput() {
+        if (!mobileKeyboardInput) {
+            return;
+        }
+
+        mobileKeyboardInput.value = " ";
+
+        try {
+            mobileKeyboardInput.setSelectionRange(1, 1);
+        } catch (error) {
+            // Some mobile browsers may not support this perfectly.
+        }
+    }
+
     function focusMobileKeyboardInput() {
         if (!mobileKeyboardInput) {
             return;
         }
 
-        mobileKeyboardInput.value = "";
+        resetMobileKeyboardInput();
+
         mobileKeyboardInput.focus({
             preventScroll: true
         });
@@ -353,7 +368,7 @@ export function setupKeyboardInput({
 
             if (event.inputType === "deleteContentBackward") {
                 await handleVirtualKey("Backspace");
-                mobileKeyboardInput.value = "";
+                resetMobileKeyboardInput();
                 return;
             }
 
@@ -367,7 +382,7 @@ export function setupKeyboardInput({
                 await handleVirtualKey(typedLetter);
             }
 
-            mobileKeyboardInput.value = "";
+            resetMobileKeyboardInput();
         });
     }
 }
