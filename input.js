@@ -74,6 +74,24 @@ export function setupKeyboardInput({
 
     document.addEventListener("keydown", async (event) => {
         if (!gameActive) return;
+
+        const isMobileKeyboardEvent =
+            mobileKeyboardInput &&
+            event.target === mobileKeyboardInput;
+
+        const mobileInputHandledKeys = [
+            "Backspace"
+        ];
+
+        if (
+            isMobileKeyboardEvent &&
+            (
+                event.key.length === 1 ||
+                mobileInputHandledKeys.includes(event.key)
+            )
+        ) {
+            return;
+        }
         
         const selectedCell = getSelectedCell()
         const { row, col } = selectedCell;
