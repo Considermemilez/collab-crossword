@@ -67,6 +67,7 @@ import {
 
 
 console.log("script loaded")
+console.log("Loaded puzzle catalog:", puzzleCatalog);
 
 // STATE
 const grid = Array(SIZE).fill().map(() =>

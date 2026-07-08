@@ -26,7 +26,7 @@ export async function saveCrosswordCell({
     const cellRow = {
         room_id: roomId,
         row_index: row,
-        col_indec: col,
+        col_index: col,
         letter: cleanedLetter,
         updated_by: user.id,
         updated_at: new Date().toISOString()
@@ -41,7 +41,7 @@ export async function saveCrosswordCell({
         .upsert(
             cellRow,
             {
-                onConflict: "room_id,row_index,coll_index"
+                onConflict: "room_id,row_index,col_index"
             }
         )
         .select("room_id, row_index, col_index, letter, is_revealed, updated_by, updated_at")
