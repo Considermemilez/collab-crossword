@@ -6,16 +6,20 @@ body {
 }
 
 #grid {
+    --cell-size: min(30px, calc((100vw - 40px) / 15));
+
     display: grid;
-    grid-template-columns: repeat(15, 30px);
-    grid-template-rows: repeat(15, 30px);
+    grid-template-columns: repeat(15, var(--cell-size));
+    grid-template-rows: repeat(15, var(--cell-size));
     gap: 1px;
     margin-top: 20px;
+
+    max-width: calc(100vw - 24px);
 }
 
 .cell {
-    width: 30px;
-    height: 30px;
+    width: var(--cell-size);
+    height: var(--cell-size);
     border: 1px solid #ccc;
     box-sizing: border-box;
 
@@ -23,7 +27,7 @@ body {
     align-items: center;
     justify-content: center;
 
-    font-size: 18px;
+    font-size: clamp(13px, 4vw, 18px);
     font-weight: bold;
     user-select: none;
 
@@ -34,7 +38,7 @@ body {
     position: absolute;
     top: 2px;
     left: 2px;
-    font-size: 10px;
+    font-size: clamp(7px, 2vw, 10px);
     font-weight: normal;
 }
 
