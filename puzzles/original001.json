@@ -1,0 +1,628 @@
+{
+    "id": "original001",
+    "title": "Coffee Table Crossword",
+    "author": "Original test puzzle",
+    "description": "First Test Puzzle",
+    "blackSquares": [
+        [
+            0,
+            5
+        ],
+        [
+            0,
+            11
+        ],
+        [
+            1,
+            5
+        ],
+        [
+            1,
+            11
+        ],
+        [
+            2,
+            5
+        ],
+        [
+            2,
+            11
+        ],
+        [
+            3,
+            5
+        ],
+        [
+            3,
+            11
+        ],
+        [
+            3,
+            12
+        ],
+        [
+            3,
+            13
+        ],
+        [
+            3,
+            14
+        ],
+        [
+            4,
+            5
+        ],
+        [
+            4,
+            11
+        ],
+        [
+            4,
+            12
+        ],
+        [
+            4,
+            13
+        ],
+        [
+            4,
+            14
+        ],
+        [
+            5,
+            0
+        ],
+        [
+            5,
+            1
+        ],
+        [
+            5,
+            2
+        ],
+        [
+            5,
+            3
+        ],
+        [
+            5,
+            4
+        ],
+        [
+            5,
+            5
+        ],
+        [
+            5,
+            6
+        ],
+        [
+            5,
+            7
+        ],
+        [
+            5,
+            8
+        ],
+        [
+            5,
+            9
+        ],
+        [
+            5,
+            10
+        ],
+        [
+            5,
+            11
+        ],
+        [
+            5,
+            12
+        ],
+        [
+            5,
+            13
+        ],
+        [
+            5,
+            14
+        ],
+        [
+            6,
+            3
+        ],
+        [
+            6,
+            9
+        ],
+        [
+            6,
+            14
+        ],
+        [
+            7,
+            3
+        ],
+        [
+            7,
+            9
+        ],
+        [
+            7,
+            14
+        ],
+        [
+            8,
+            3
+        ],
+        [
+            8,
+            9
+        ],
+        [
+            8,
+            14
+        ],
+        [
+            9,
+            0
+        ],
+        [
+            9,
+            1
+        ],
+        [
+            9,
+            2
+        ],
+        [
+            9,
+            3
+        ],
+        [
+            9,
+            9
+        ],
+        [
+            9,
+            14
+        ],
+        [
+            10,
+            0
+        ],
+        [
+            10,
+            1
+        ],
+        [
+            10,
+            2
+        ],
+        [
+            10,
+            3
+        ],
+        [
+            10,
+            9
+        ],
+        [
+            10,
+            10
+        ],
+        [
+            10,
+            11
+        ],
+        [
+            10,
+            12
+        ],
+        [
+            10,
+            13
+        ],
+        [
+            10,
+            14
+        ],
+        [
+            11,
+            0
+        ],
+        [
+            11,
+            1
+        ],
+        [
+            11,
+            2
+        ],
+        [
+            11,
+            3
+        ],
+        [
+            11,
+            4
+        ],
+        [
+            11,
+            5
+        ],
+        [
+            11,
+            6
+        ],
+        [
+            11,
+            7
+        ],
+        [
+            11,
+            8
+        ],
+        [
+            11,
+            9
+        ],
+        [
+            11,
+            10
+        ],
+        [
+            11,
+            11
+        ],
+        [
+            11,
+            12
+        ],
+        [
+            11,
+            13
+        ],
+        [
+            11,
+            14
+        ],
+        [
+            12,
+            3
+        ],
+        [
+            12,
+            7
+        ],
+        [
+            12,
+            11
+        ],
+        [
+            13,
+            3
+        ],
+        [
+            13,
+            7
+        ],
+        [
+            13,
+            11
+        ],
+        [
+            14,
+            3
+        ],
+        [
+            14,
+            7
+        ],
+        [
+            14,
+            11
+        ]
+    ],
+    "across": {
+        "1": {
+            "clue": "Calm after conflict",
+            "answer": "PEACE"
+        },
+        "6": {
+            "clue": "River-mouth triangle",
+            "answer": "DELTA"
+        },
+        "11": {
+            "clue": "Purring pet",
+            "answer": "CAT"
+        },
+        "14": {
+            "clue": "More than needed",
+            "answer": "EXTRA"
+        },
+        "15": {
+            "clue": "Digital message",
+            "answer": "EMAIL"
+        },
+        "16": {
+            "clue": "Second-person present form of 'be'",
+            "answer": "ARE"
+        },
+        "17": {
+            "clue": "Book of maps",
+            "answer": "ATLAS"
+        },
+        "18": {
+            "clue": "Big",
+            "answer": "LARGE"
+        },
+        "19": {
+            "clue": "Number after nine",
+            "answer": "TEN"
+        },
+        "20": {
+            "clue": "Wooden shipping box",
+            "answer": "CRATE"
+        },
+        "21": {
+            "clue": "Striped big cat",
+            "answer": "TIGER"
+        },
+        "22": {
+            "clue": "Stand for a painter's canvas",
+            "answer": "EASEL"
+        },
+        "23": {
+            "clue": "Wide awake",
+            "answer": "ALERT"
+        },
+        "24": {
+            "clue": "Barking pet",
+            "answer": "DOG"
+        },
+        "27": {
+            "clue": "Calm after conflict",
+            "answer": "PEACE"
+        },
+        "32": {
+            "clue": "Round toy",
+            "answer": "BALL"
+        },
+        "36": {
+            "clue": "Rock mined for metal",
+            "answer": "ORE"
+        },
+        "37": {
+            "clue": "More than needed",
+            "answer": "EXTRA"
+        },
+        "38": {
+            "clue": "Surface measurement",
+            "answer": "AREA"
+        },
+        "39": {
+            "clue": "Obtain",
+            "answer": "GET"
+        },
+        "40": {
+            "clue": "Fragrant essential oil",
+            "answer": "ATTAR"
+        },
+        "41": {
+            "clue": "Go first",
+            "answer": "LEAD"
+        },
+        "42": {
+            "clue": "Skillful trade or hobby",
+            "answer": "CRAFT"
+        },
+        "43": {
+            "clue": "Polite term for a woman",
+            "answer": "LADY"
+        },
+        "44": {
+            "clue": "Our planet",
+            "answer": "EARTH"
+        },
+        "45": {
+            "clue": "Daytime star",
+            "answer": "SUN"
+        },
+        "48": {
+            "clue": "Highest point",
+            "answer": "TOP"
+        },
+        "51": {
+            "clue": "Flying mammal",
+            "answer": "BAT"
+        },
+        "54": {
+            "clue": "Road vehicle",
+            "answer": "CAR"
+        },
+        "57": {
+            "clue": "Put to work",
+            "answer": "USE"
+        },
+        "58": {
+            "clue": "Rock mined for metal",
+            "answer": "ORE"
+        },
+        "59": {
+            "clue": "Second-person present form of 'be'",
+            "answer": "ARE"
+        },
+        "60": {
+            "clue": "Primate",
+            "answer": "APE"
+        },
+        "61": {
+            "clue": "Mesh for catching",
+            "answer": "NET"
+        },
+        "62": {
+            "clue": "Animal companion",
+            "answer": "PET"
+        },
+        "63": {
+            "clue": "Number after nine",
+            "answer": "TEN"
+        },
+        "64": {
+            "clue": "Color of a stop sign",
+            "answer": "RED"
+        }
+    },
+    "down": {
+        "1": {
+            "clue": "Calm after conflict",
+            "answer": "PEACE"
+        },
+        "24": {
+            "clue": "Barking pet",
+            "answer": "DOG"
+        },
+        "45": {
+            "clue": "Daytime star",
+            "answer": "SUN"
+        },
+        "2": {
+            "clue": "More than needed",
+            "answer": "EXTRA"
+        },
+        "25": {
+            "clue": "Rock mined for metal",
+            "answer": "ORE"
+        },
+        "46": {
+            "clue": "Put to work",
+            "answer": "USE"
+        },
+        "3": {
+            "clue": "Book of maps",
+            "answer": "ATLAS"
+        },
+        "26": {
+            "clue": "Obtain",
+            "answer": "GET"
+        },
+        "47": {
+            "clue": "Mesh for catching",
+            "answer": "NET"
+        },
+        "4": {
+            "clue": "Wooden shipping box",
+            "answer": "CRATE"
+        },
+        "5": {
+            "clue": "Stand for a painter's canvas",
+            "answer": "EASEL"
+        },
+        "27": {
+            "clue": "Calm after conflict",
+            "answer": "PEACE"
+        },
+        "48": {
+            "clue": "Highest point",
+            "answer": "TOP"
+        },
+        "28": {
+            "clue": "More than needed",
+            "answer": "EXTRA"
+        },
+        "49": {
+            "clue": "Rock mined for metal",
+            "answer": "ORE"
+        },
+        "6": {
+            "clue": "River-mouth triangle",
+            "answer": "DELTA"
+        },
+        "29": {
+            "clue": "Fragrant essential oil",
+            "answer": "ATTAR"
+        },
+        "50": {
+            "clue": "Animal companion",
+            "answer": "PET"
+        },
+        "7": {
+            "clue": "Digital message",
+            "answer": "EMAIL"
+        },
+        "30": {
+            "clue": "Skillful trade or hobby",
+            "answer": "CRAFT"
+        },
+        "8": {
+            "clue": "Big",
+            "answer": "LARGE"
+        },
+        "31": {
+            "clue": "Our planet",
+            "answer": "EARTH"
+        },
+        "51": {
+            "clue": "Flying mammal",
+            "answer": "BAT"
+        },
+        "9": {
+            "clue": "Striped big cat",
+            "answer": "TIGER"
+        },
+        "52": {
+            "clue": "Second-person present form of 'be'",
+            "answer": "ARE"
+        },
+        "10": {
+            "clue": "Wide awake",
+            "answer": "ALERT"
+        },
+        "32": {
+            "clue": "Round toy",
+            "answer": "BALL"
+        },
+        "53": {
+            "clue": "Number after nine",
+            "answer": "TEN"
+        },
+        "33": {
+            "clue": "Surface measurement",
+            "answer": "AREA"
+        },
+        "11": {
+            "clue": "Purring pet",
+            "answer": "CAT"
+        },
+        "34": {
+            "clue": "Go first",
+            "answer": "LEAD"
+        },
+        "54": {
+            "clue": "Road vehicle",
+            "answer": "CAR"
+        },
+        "12": {
+            "clue": "Second-person present form of 'be'",
+            "answer": "ARE"
+        },
+        "35": {
+            "clue": "Polite term for a woman",
+            "answer": "LADY"
+        },
+        "55": {
+            "clue": "Primate",
+            "answer": "APE"
+        },
+        "13": {
+            "clue": "Number after nine",
+            "answer": "TEN"
+        },
+        "56": {
+            "clue": "Color of a stop sign",
+            "answer": "RED"
+        }
+    }
+}

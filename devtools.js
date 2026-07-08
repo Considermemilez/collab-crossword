@@ -1,4 +1,4 @@
-const DEV_SHORTCUTS_ENABLED = true; 
+const DEV_SHORTCUTS_ENABLED = false; 
 // set to false before production
 // These shortcuts are for local testing only
 // Shortcut 4 intentionally simulates an eligible solve for testing leaderboard inserts

@@ -10,5 +10,10 @@ export const puzzleCatalog = [
         id: "easy002",
         name: "Easy Puzzle #2",
         difficulty: "Easy"
+    },
+    {
+        id: "original001",
+        name: "Coffee Table Crossword",
+        difficulty: "Easy"
     }
 ];
