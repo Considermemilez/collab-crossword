@@ -387,3 +387,20 @@ button:disabled {
 .room-lobby-player {
     padding: 6px 0;
 }
+
+.mobile-keyboard-input {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+
+    width: 1px;
+    height: 1px;
+
+    opacity: 0;
+    border: none;
+    padding: 0;
+    margin: 0;
+
+    font-size: 16px;
+    pointer-events: none;
+}
