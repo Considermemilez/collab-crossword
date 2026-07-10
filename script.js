@@ -125,6 +125,7 @@ let currentUserId = null;
 // DOM Container
 const gridContainer = document.getElementById("grid");
 const checkButton = document.getElementById("check-btn");
+const exitGameButton = document.getElementById("exit-game-btn");
 const revealButton = document.getElementById("reveal-btn");
 const revealMenu = document.getElementById("reveal-menu");
 const revealLetterButton = document.getElementById("reveal-letter-btn");
@@ -1276,6 +1277,23 @@ revealPuzzleButton.addEventListener("click", async () => {
     revealMenu.classList.add("hidden");
 
     await finishPuzzle();
+});
+
+// Exit Game Button Listener
+exitGameButton.addEventListener("click", () => {
+    const shouldExit = confirm(
+        "Exit this game? The room will stay open unless the host closes it."
+    );
+
+    if (!shouldExit) {
+        return;
+    }
+
+    if (currentSession.roomId) {
+        localStorage.removeItem("crosswordCurrentGame");
+    }
+
+    returnToWelcomeScreen();
 });
 
 // Completion Modal Close Listener

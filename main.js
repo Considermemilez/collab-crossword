@@ -5,7 +5,8 @@ import {
     getCrosswordRoomSummaries,
     getCrosswordRoomDetails,
     joinRoom,
-    startCrosswordRoom
+    startCrosswordRoom,
+    closeCrosswordRoom
 } from "./roomService.js";
 import { startRoomGame } from "./script.js";
 
@@ -30,6 +31,7 @@ const roomLobbyBackButton = document.getElementById("room-lobby-back-btn");
 const roomLobbyDetails = document.getElementById("room-lobby-details");
 const roomLobbyPlayers = document.getElementById("room-lobby-players");
 const roomLobbyStartButton = document.getElementById("room-lobby-start-btn");
+const roomLobbyCloseButton = document.getElementById("room-lobby-close-btn");
 const roomLobbyStatus = document.getElementById("room-lobby-status");
 
 
@@ -186,6 +188,12 @@ function renderRoomLobby(room) {
         `${room.visibility} • ${room.status} • ${room.puzzleId} • ${room.mode}`;
 
     roomLobbyPlayers.innerHTML = "";
+
+    if (room.isCurrentUserCreator) {
+        roomLobbyCloseButton.classList.remove("hidden");
+    } else {
+        roomLobbyCloseButton.classList.add("hidden");
+    }
 
     room.players.forEach(player => {
         const playerRow = document.createElement("div");
@@ -452,6 +460,39 @@ roomLobbyBackButton.addEventListener("click", async () => {
     unsubscribeFromRoomUpdates();
     stopRoomLobbyPolling();
     currentRoomId = null;
+
+    showPlatformScreen("crossword-lobby");
+    await refreshRoomList();
+});
+
+// Room Lobby CLose Button listener
+roomLobbyCloseButton.addEventListener("click", async () => {
+    if (!currentRoomId) {
+        roomLobbyStatus.textContent = "No room selected.";
+        return;
+    }
+
+    const shouldClose = confirm(
+        "Close this room? Players will no longer see it in the lobby."
+    );
+
+    if (!shouldClose) {
+        return;
+    }
+
+    roomLobbyStatus.textContent = "Closing room...";
+
+    const closedRoom = await closeCrosswordRoom(currentRoomId);
+
+    if (!closedRoom) {
+        roomLobbyStatus.textContent = "Could not close room. Only the host can close it.";
+        return;
+    }
+
+    unsubscribeFromRoomUpdates();
+    stopRoomLobbyPolling();
+    currentRoomId = null;
+    currentRoom = null;
 
     showPlatformScreen("crossword-lobby");
     await refreshRoomList();

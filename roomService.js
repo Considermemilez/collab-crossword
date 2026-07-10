@@ -384,3 +384,31 @@ export async function startCrosswordRoom(roomId) {
 
     return data;
 }
+
+// Close Crossword Room
+export async function closeCrosswordRoom(roomId) {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+        console.error("Cannot close room without signed-in user.");
+        return null;
+    }
+
+    const { data, error } = await supabaseClient
+        .from("game_rooms")
+        .update({
+            status: "closed",
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", roomId)
+        .eq("created_by", currentUser.id)
+        .select("id, status")
+        .single();
+
+    if (error) {
+        console.error("Error closing crossword room:", error);
+        return null;
+    }
+
+    return data;
+}
